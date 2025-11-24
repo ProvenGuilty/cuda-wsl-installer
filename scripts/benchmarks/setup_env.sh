@@ -45,13 +45,12 @@ if [[ -z "$PHASE" ]]; then
   exit 1
 fi
 
-# Check for python3-venv
 if ! python3 -c "import venv" 2>/dev/null; then
   echo "[ERROR] python3-venv is not available. Install it with: sudo apt install python3-venv" >&2
   exit 1
 fi
 
-# Create venv if not exists
+# Create venv if not exists (idempotent)
 if [[ ! -d "$VENV_PATH" ]]; then
   python3 -m venv "$VENV_PATH"
 fi
@@ -61,10 +60,77 @@ if [[ ! -f "$VENV_PATH/bin/activate" ]]; then
 fi
 # shellcheck disable=SC1090
 source "$VENV_PATH/bin/activate"
-python -m pip install --upgrade pip setuptools wheel
 
-# Always install packages
-echo "[setup_env] Installing packages..."
+# Upgrade pip/setuptools/wheel sequentially (no race conditions)
+python -m pip install --upgrade pip
+python -m pip install --upgrade setuptools wheel
+
+detect_cuda_version() {
+  if command -v nvcc >/dev/null 2>&1; then
+    version=$(nvcc --version | grep -oP 'release \K[0-9]+\.[0-9]+')
+    major_minor=$(echo "$version" | tr -d '.')
+    # Map to available PyTorch CUDA versions for compatibility
+    if [[ "$major_minor" -ge 130 ]]; then
+      echo "cu126"  # CUDA 13.0+ maps to cu126
+    elif [[ "$major_minor" -ge 126 ]]; then
+      echo "cu126"
+    elif [[ "$major_minor" -ge 124 ]]; then
+      echo "cu124"
+    else
+      echo "cu121"
+    fi
+  elif command -v nvidia-smi >/dev/null 2>&1; then
+    # Fallback: assume cu124 for compatibility
+    echo "cu124"
+  else
+    echo "cpu"
+  fi
+}
+
+# Detect CUDA and set PyTorch index
+echo "[setup_env] Detecting CUDA version..."
+PYTORCH_CUDA_SUFFIX=$(detect_cuda_version)
+if [[ "$PYTORCH_CUDA_SUFFIX" == "cpu" ]]; then
+  PYTORCH_INDEX=""
+  echo "[setup_env] CUDA not detected, using CPU-only PyTorch."
+else
+  PYTORCH_INDEX="--index-url https://download.pytorch.org/whl/${PYTORCH_CUDA_SUFFIX}"
+  echo "[setup_env] Using PyTorch ${PYTORCH_CUDA_SUFFIX}."
+fi
+
+# Install packages in dependency order (no out-of-order issues)
+echo "[setup_env] Installing core dependencies..."
+python -m pip install --upgrade numpy pandas matplotlib
+
+echo "[setup_env] Installing PyTorch..."
+python -m pip install --upgrade torch torchvision "$PYTORCH_INDEX"
+
+echo "[setup_env] Installing TensorFlow..."
+python -m pip install --upgrade tensorflow[and-cuda]
+
+if [[ "$BENCH_SET" == "all" ]]; then
+  echo "[setup_env] Installing RAPIDS..."
+  if [[ "$PYTORCH_CUDA_SUFFIX" == "cu126" ]]; then
+    python -m pip install --upgrade cudf-cu13 dask-cudf --extra-index-url=https://pypi.nvidia.com || python -m pip install --upgrade cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com
+  else
+    python -m pip install --upgrade cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com
+  fi
+fi
+
+# Verify installations (catch failures early)
+echo "[setup_env] Verifying core packages..."
+python -c "import numpy as np; print(' NumPy:', np.__version__)" || { echo "[ERROR] NumPy failed"; exit 1; }
+python -c "import pandas as pd; print(' Pandas:', pd.__version__)" || { echo "[ERROR] Pandas failed"; exit 1; }
+python -c "import matplotlib; print(' Matplotlib:', matplotlib.__version__)" || { echo "[ERROR] Matplotlib failed"; exit 1; }
+
+if [[ "$PHASE" != "baseline" ]]; then
+  echo "[setup_env] Verifying ML packages..."
+  python -c "import torch; print(' PyTorch:', torch.__version__, 'CUDA:', torch.cuda.is_available())" || { echo "[ERROR] PyTorch failed"; exit 1; }
+  python -c "import tensorflow as tf; print(' TensorFlow:', tf.__version__)" || { echo "[ERROR] TensorFlow failed"; exit 1; }
+  if [[ "$BENCH_SET" == "all" ]]; then
+    python -c "try: import cudf; print(' cuDF available'); except ImportError: print('! cuDF not available (expected on CPU)')" || true
+  fi
+fi
 
 fix_cudnn_links() {
   shopt -s nullglob
@@ -78,76 +144,9 @@ fix_cudnn_links() {
   done
 }
 
-detect_cuda_version() {
-  if command -v nvcc >/dev/null 2>&1; then
-    version=$(nvcc --version | grep -oP 'release \K[0-9]+\.[0-9]+')
-    major_minor=$(echo "$version" | tr -d '.')
-    # Map to available PyTorch CUDA versions
-    if [[ "$major_minor" -ge 126 ]]; then
-      echo "126"
-    elif [[ "$major_minor" -ge 124 ]]; then
-      echo "124"
-    else
-      echo "121"
-    fi
-  elif command -v nvidia-smi >/dev/null 2>&1; then
-    # Fallback: assume 12.4 for compatibility
-    echo "124"
-  else
-    echo "cpu"
-  fi
-}
-
-PYTORCH_CUDA_SUFFIX=$(detect_cuda_version)
-if [[ "$PYTORCH_CUDA_SUFFIX" == "cpu" ]]; then
-  PYTORCH_INDEX=""
-else
-  PYTORCH_INDEX="--index-url https://download.pytorch.org/whl/cu${PYTORCH_CUDA_SUFFIX}"
-fi
-
-if [[ "$PHASE" == "baseline" ]]; then
-  echo "[setup_env] Installing baseline packages..."
-  python -m pip install --upgrade numpy==2.3.5 pandas==2.2.3 matplotlib==3.9.2 torch==2.5.1 torchvision==0.20.1 tensorflow-cpu==2.18.0
-  echo "[setup_env] Baseline packages installed."
-else
-  echo "[setup_env] Detecting CUDA version..."
-  PYTORCH_CUDA_SUFFIX=$(detect_cuda_version)
-  if [[ "$PYTORCH_CUDA_SUFFIX" == "cpu" ]]; then
-    PYTORCH_INDEX=""
-    echo "[setup_env] CUDA not detected, using CPU-only PyTorch."
-  else
-    PYTORCH_INDEX="--index-url https://download.pytorch.org/whl/cu${PYTORCH_CUDA_SUFFIX}"
-    echo "[setup_env] Using PyTorch CUDA $PYTORCH_CUDA_SUFFIX."
-  fi
-
-  echo "[setup_env] Installing core packages..."
-  python -m pip install --upgrade numpy==2.3.5 pandas==2.2.3 matplotlib==3.9.2
-  echo "[setup_env] Installing PyTorch..."
-  python -m pip install --upgrade torch torchvision $PYTORCH_INDEX
-  echo "[setup_env] Installing TensorFlow..."
-  python -m pip install --upgrade tensorflow[and-cuda]==2.18.0
-  if [[ "$BENCH_SET" == "all" ]]; then
-    echo "[setup_env] Installing RAPIDS..."
-    # Assume cu12 for CUDA 12.x, cu13 for 13.x
-    if [[ "$PYTORCH_CUDA_SUFFIX" == "130" ]]; then
-      python -m pip install --upgrade cudf-cu13 dask-cudf --extra-index-url=https://pypi.nvidia.com || python -m pip install --upgrade cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com
-    else
-      python -m pip install --upgrade cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com
-    fi
-  fi
-fi
-
-# Verify key packages
-echo "[setup_env] Verifying installations..."
-python -c "import numpy as np; print('NumPy:', np.__version__)" || { echo "[ERROR] NumPy failed"; exit 1; }
-python -c "import pandas as pd; print('Pandas:', pd.__version__)" || { echo "[ERROR] Pandas failed"; exit 1; }
-if [[ "$PHASE" != "baseline" ]]; then
-  python -c "import torch; print('PyTorch:', torch.__version__)" || { echo "[ERROR] PyTorch failed"; exit 1; }
-  python -c "import tensorflow as tf; print('TensorFlow:', tf.__version__)" || { echo "[ERROR] TensorFlow failed"; exit 1; }
-fi
-
 fix_cudnn_links
 
-echo "[setup_env] Environment setup complete. Virtual environment at $VENV_PATH"
+echo "[setup_env] Setup complete! Virtual environment: $VENV_PATH"
+echo "[setup_env] CUDA suffix used: $PYTORCH_CUDA_SUFFIX"
 
 deactivate >/dev/null 2>&1 || true
