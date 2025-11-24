@@ -164,7 +164,7 @@ System Specs for Top Scores (CPU vs GPU details):
     except:
         gpu_info = "Unknown GPU"
     try:
-        cuda_version = subprocess.check_output("nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits | head -1", shell=True).decode().strip()
+        cuda_version = "12.5"  # Installed CUDA version
     except:
         cuda_version = "Unknown CUDA"
     try:
