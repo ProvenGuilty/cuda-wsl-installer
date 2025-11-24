@@ -137,7 +137,8 @@ System Specs for Top Scores (CPU vs GPU details):
             print(f"{rank}. {handle} - {benchmark} ({device_type}): CPU: {cpu} | GPU: {gpu} | OS: {os_} | CUDA: {cuda} | Driver: {driver}")
 
     # Append to shared leaderboard file
-    leaderboard_file = os.path.expanduser("~/.cuda-wsl-benchmarks/hacker_leaderboard.json")
+    benchmark_type = "pytorch_matmul"
+    leaderboard_file = os.path.join(os.path.dirname(__file__), f"../../results/hacker_leaderboard_{benchmark_type}.json")
     if os.path.exists(leaderboard_file):
         with open(leaderboard_file, 'r') as f:
             scores = json.load(f)
