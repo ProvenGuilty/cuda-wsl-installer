@@ -1,1 +1,46 @@
-[]
+[
+  {
+    "handle": "@Christopher Ryan",
+    "benchmark": "cudf_groupby",
+    "score": 0.02925862300071458,
+    "status": "ELITE HACKER!",
+    "cpu": "Intel(R) Core(TM) i7-7700K CPU @ 4.20GHz",
+    "gpu": "NVIDIA GeForce GTX 1080 Ti",
+    "cuda_version": "581.57",
+    "driver_version": "581.57",
+    "os": "Ubuntu 24.04.3 LTS"
+  },
+  {
+    "handle": "@Christopher Ryan",
+    "benchmark": "cudf_groupby",
+    "score": 0.029374335999818868,
+    "status": "ELITE HACKER!",
+    "cpu": "Intel(R) Core(TM) i7-7700K CPU @ 4.20GHz",
+    "gpu": "NVIDIA GeForce GTX 1080 Ti",
+    "cuda_version": "581.57",
+    "driver_version": "581.57",
+    "os": "Ubuntu 24.04.3 LTS"
+  },
+  {
+    "handle": "@Christopher Ryan",
+    "benchmark": "cudf_groupby",
+    "score": 0.03453054199962935,
+    "status": "ELITE HACKER!",
+    "cpu": "Intel(R) Core(TM) i7-7700K CPU @ 4.20GHz",
+    "gpu": "NVIDIA GeForce GTX 1080 Ti",
+    "cuda_version": "581.57",
+    "driver_version": "581.57",
+    "os": "Ubuntu 24.04.3 LTS"
+  },
+  {
+    "handle": "@Christopher Ryan",
+    "benchmark": "cudf_groupby",
+    "score": 0.04104098599964345,
+    "status": "ELITE HACKER!",
+    "cpu": "Intel(R) Core(TM) i7-7700K CPU @ 4.20GHz",
+    "gpu": "NVIDIA GeForce GTX 1080 Ti",
+    "cuda_version": "581.57",
+    "driver_version": "581.57",
+    "os": "Ubuntu 24.04.3 LTS"
+  }
+]

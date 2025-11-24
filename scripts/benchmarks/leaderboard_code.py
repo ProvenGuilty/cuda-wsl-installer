@@ -52,7 +52,15 @@ System Specs for Top Scores (CPU vs GPU details):
         print(f"{rank}. {handle} - {benchmark} ({device_type}): CPU: {cpu} | GPU: {gpu} | OS: {os_} | CUDA: {cuda} | Driver: {driver}")
 
 # Append to shared leaderboard file (now in repo for public visibility)
-leaderboard_file = os.path.join(os.path.dirname(__file__), "../../results/hacker_leaderboard.json")
+if "pytorch" in __file__:
+    benchmark_type = "pytorch_matmul"
+elif "tensorflow" in __file__:
+    benchmark_type = "tensorflow_cnn"
+elif "cudf" in __file__:
+    benchmark_type = "cudf_groupby"
+else:
+    benchmark_type = "unknown"
+leaderboard_file = os.path.join(os.path.dirname(__file__), f"../../results/hacker_leaderboard_{benchmark_type}.json")
 if os.path.exists(leaderboard_file):
     with open(leaderboard_file, 'r') as f:
         scores = json.load(f)

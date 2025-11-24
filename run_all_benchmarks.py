@@ -7,7 +7,8 @@ import os
 
 def run_benchmark(script, device="cuda"):
     """Run a benchmark script."""
-    cmd = [sys.executable, f"scripts/benchmarks/{script}.py", "--device", device]
+    # Use venv python directly
+    cmd = [os.path.expanduser("~/.cuda-wsl-bench-venv/bin/python3"), f"scripts/benchmarks/{script}.py", "--device", device]
     print(f"Running {script} on {device}...")
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:

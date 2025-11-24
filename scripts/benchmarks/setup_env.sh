@@ -50,25 +50,42 @@ python3 -m venv "$VENV_PATH"
 source "$VENV_PATH/bin/activate"
 python -m pip install --upgrade pip setuptools wheel
 
-fix_cudnn_links() {
-  shopt -s nullglob
-  local libdirs=("$VENV_PATH"/lib/python*/site-packages/nvidia/cudnn/lib)
-  shopt -u nullglob
-  for dir in "${libdirs[@]}"; do
-    [[ -d "$dir" ]] || continue
     if [[ -f "$dir/libcudnn.so.9" && ! -f "$dir/libcudnn.so" ]]; then
       ln -sf libcudnn.so.9 "$dir/libcudnn.so"
     fi
   done
 }
 
+detect_cuda_version() {
+  if command -v nvcc >/dev/null 2>&1; then
+    nvcc --version | grep -oP 'release \K[0-9]+\.[0-9]+' | tr -d '.'
+  elif command -v nvidia-smi >/dev/null 2>&1; then
+    # Fallback: assume 12.5 for Pascal+, but this is approximate
+    echo "125"
+  else
+    echo "cpu"
+  fi
+}
+
+PYTORCH_CUDA_SUFFIX=$(detect_cuda_version)
+if [[ "$PYTORCH_CUDA_SUFFIX" == "cpu" ]]; then
+  PYTORCH_INDEX=""
+else
+  PYTORCH_INDEX="--index-url https://download.pytorch.org/whl/cu${PYTORCH_CUDA_SUFFIX}"
+fi
+
 if [[ "$PHASE" == "baseline" ]]; then
   python -m pip install --upgrade torch==2.5.1 torchvision==0.20.1 tensorflow-cpu==2.18.0 pandas==2.2.3 matplotlib==3.9.2
 else
-  python -m pip install --upgrade torch torchvision --index-url https://download.pytorch.org/whl/cu125
+  python -m pip install --upgrade torch torchvision $PYTORCH_INDEX
   python -m pip install --upgrade tensorflow[and-cuda]==2.18.0 pandas==2.2.3 matplotlib==3.9.2
   if [[ "$BENCH_SET" == "all" ]]; then
-    python -m pip install --upgrade cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com
+    # Assume cu12 for CUDA 12.x, cu13 for 13.x
+    if [[ "$PYTORCH_CUDA_SUFFIX" == "130" ]]; then
+      python -m pip install --upgrade cudf-cu13 dask-cudf --extra-index-url=https://pypi.nvidia.com || python -m pip install --upgrade cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com
+    else
+      python -m pip install --upgrade cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com
+    fi
   fi
 fi
 
