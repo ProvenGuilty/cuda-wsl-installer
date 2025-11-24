@@ -46,9 +46,20 @@ def parse_args() -> argparse.Namespace:
 
 ARGS = parse_args()
 
-# Check for CUDA availability, fallback to CPU if requested device is cuda but not available
-if ARGS.device == "cuda" and not torch.cuda.is_available():
-    print("CUDA requested but not available, falling back to CPU")
+# Check for CUDA availability and usability
+try:
+    if torch.cuda.is_available() and torch.cuda.device_count() > 0:
+        # Test if we can actually use the device
+        torch.cuda.init()
+        torch.cuda.synchronize()
+        cuda_usable = True
+    else:
+        cuda_usable = False
+except Exception:
+    cuda_usable = False
+
+if ARGS.device == "cuda" and not cuda_usable:
+    print("CUDA requested but not usable, falling back to CPU")
     ARGS.device = "cpu"
 
 

@@ -204,8 +204,9 @@ To participate in the community CUDA WSL benchmarks and contribute to the gamifi
 - **System verification:** Run `nvidia-smi` to ensure GPU is detected, and `nvcc --version` to check CUDA.
 
 ### Important Notes
-- **GPU/CPU Fallback:** Benchmarks attempt GPU first, but fall back to CPU if CUDA is unavailable or fails (e.g., due to library incompatibilities). This ensures the tests run on all hardware.
+- **GPU/CPU Fallback:** Benchmarks attempt GPU first, but fall back to CPU if CUDA is unavailable or fails (e.g., due to library incompatibilities or hardware not supported by the library version).
 - **Device Detection:** The leaderboard shows the actual device used (GPU or CPU) based on successful execution.
+- **GPU Compatibility:** Latest PyTorch/TensorFlow may not support older GPUs (e.g., Pascal sm_61). If GPU fails, CPU is used automatically.
 
 ### Running Benchmarks
 You can run individual benchmarks for targeted testing or all benchmarks at once for a full leaderboard submission.

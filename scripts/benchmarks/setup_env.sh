@@ -51,7 +51,10 @@ if ! python3 -c "import venv" 2>/dev/null; then
   exit 1
 fi
 
-python3 -m venv "$VENV_PATH"
+# Create venv if not exists
+if [[ ! -d "$VENV_PATH" ]]; then
+  python3 -m venv "$VENV_PATH"
+fi
 if [[ ! -f "$VENV_PATH/bin/activate" ]]; then
   echo "[ERROR] Failed to create virtual environment at $VENV_PATH" >&2
   exit 1
@@ -59,6 +62,9 @@ fi
 # shellcheck disable=SC1090
 source "$VENV_PATH/bin/activate"
 python -m pip install --upgrade pip setuptools wheel
+
+# Always install packages
+echo "[setup_env] Installing packages..."
 
     if [[ -f "$dir/libcudnn.so.9" && ! -f "$dir/libcudnn.so" ]]; then
       ln -sf libcudnn.so.9 "$dir/libcudnn.so"

@@ -37,15 +37,14 @@ def ensure_device(device: str) -> None:
             if not gpus:
                 print("TensorFlow did not detect GPU, falling back to CPU")
                 ARGS.device = "cpu"
-        except AttributeError:
-            # Fallback for older TF or CPU version
-            try:
-                if not tf.test.is_gpu_available():
-                    print("TensorFlow GPU not available, falling back to CPU")
-                    ARGS.device = "cpu"
-            except AttributeError:
-                print("TensorFlow GPU check failed, assuming CPU")
-                ARGS.device = "cpu"
+                return
+            # Test if GPU is usable
+            with tf.device('/GPU:0'):
+                tf.constant(1.0)
+            print("TensorFlow GPU available and usable")
+        except (AttributeError, RuntimeError) as e:
+            print(f"TensorFlow GPU check failed ({e}), falling back to CPU")
+            ARGS.device = "cpu"
 
 
 def build_model() -> tf.keras.Model:
