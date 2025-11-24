@@ -66,8 +66,14 @@ python -m pip install --upgrade pip setuptools wheel
 # Always install packages
 echo "[setup_env] Installing packages..."
 
-    if [[ -f "$dir/libcudnn.so.9" && ! -f "$dir/libcudnn.so" ]]; then
-      ln -sf libcudnn.so.9 "$dir/libcudnn.so"
+fix_cudnn_links() {
+  shopt -s nullglob
+  local libdirs=("$VENV_PATH"/lib/python*/site-packages/nvidia/cudnn/lib)
+  shopt -u nullglob
+  for libdir in "${libdirs[@]}"; do
+    [[ -d "$libdir" ]] || continue
+    if [[ -f "$libdir/libcudnn.so.9" && ! -f "$libdir/libcudnn.so" ]]; then
+      ln -sf libcudnn.so.9 "$libdir/libcudnn.so"
     fi
   done
 }
