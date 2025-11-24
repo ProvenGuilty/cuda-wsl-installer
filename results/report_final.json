@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-11-24T07:43:17Z",
+  "host": "linux",
+  "gpu": "RTX 5070 Ti",
+  "track": "13.0",
+  "bench_set": "all",
+  "results": [
+    {
+      "test": "cudf_groupby",
+      "label": "RAPIDS cuDF groupby",
+      "unit": "s",
+      "baseline": 0.05318960399972639,
+      "after": 0.039438401000097656,
+      "improvement_pct": 25.853178000158582
+    }
+  ]
+}
