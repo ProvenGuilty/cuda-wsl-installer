@@ -87,12 +87,14 @@ def get_required_cuda_version(compute_cap):
     """Map compute capability to CUDA version."""
     if compute_cap is None:
         return "12.0"  # Default
-
+    
     major = int(compute_cap.split('.')[0])
-    if major < 7:
-        return "11.0"  # Pascal and older
+    if major <= 7:  # Pascal (6.x) and Turing (7.x)
+        return "11.0"
+    elif major >= 8:  # Ampere (8.x), Ada (8.9), Blackwell (9.x)
+        return "13.0"  # For RTX 5070 and newer
     else:
-        return "12.0"  # Turing and newer
+        return "12.0"  # Volta (7.x) and others
 
 def install_cuda(cuda_version):
     """Install CUDA."""

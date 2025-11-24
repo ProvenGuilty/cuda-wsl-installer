@@ -82,20 +82,53 @@ def install_packages(use_gpu=True):
     """Install Python packages."""
     log_info("Installing Python packages...")
 
-    # Determine PyTorch version
+    # Determine PyTorch version based on GPU and CUDA
     if use_gpu:
-        pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124"
+        # Detect CUDA version to choose PyTorch wheels
+        cuda_version = "12.0"  # Default, updated based on detection
+        try:
+            import subprocess
+            result = subprocess.run(['nvcc', '--version'], capture_output=True, text=True)
+            for line in result.stdout.split('\n'):
+                if 'release' in line:
+                    cuda_version = line.split('release ')[1].split(',')[0][:3]  # e.g., 13.0
+                    break
+        except:
+            pass
+        
+        if cuda_version.startswith('13'):
+            pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121"  # CUDA 12.1+ compatible
+        else:
+            pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124"
     else:
         pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu"
+
+    # Detect GPU compute capability for version selection
+    compute_cap = detect_gpu_compute_cap() if use_gpu else None
+    
+    # Choose TensorFlow version based on GPU and CUDA
+    if cuda_version.startswith('13') and compute_cap and int(compute_cap.split('.')[0]) >= 8:
+        # Modern GPU with CUDA 13: latest TensorFlow
+        tensorflow_version = "tensorflow[and-cuda]"
+    elif compute_cap is not None and compute_cap <= 7:  # Pascal/Turing
+        # Attempt older TF for old GPUs, but fallback to CPU
+        tensorflow_version = "tensorflow-cpu"  # Force CPU for compatibility
+    else:
+        tensorflow_version = "tensorflow[and-cuda]"
 
     # Packages to install
     packages = [
         pytorch_package,
-        "tensorflow[and-cuda] pandas loguru",
+        "pandas",
+        "loguru",
+        tensorflow_version,
     ]
 
-    if use_gpu:
+    if use_gpu and cuda_version.startswith('12'):
         packages.append("cudf-cu12 cupy-cuda12x")
+    elif use_gpu and cuda_version.startswith('13'):
+        # For CUDA 13, use compatible versions or latest
+        packages.append("cudf-cu12 cupy-cuda12x")  # Assume compatible
 
     for package in packages:
         try:
