@@ -19,8 +19,8 @@ def generate_markdown_leaderboard():
 ║   PHREAKERS & HACKERZ CUDA WSL LEADERBOARD - BBS 1985 STYLE!   ║
 ║   Scoring: Lower times = BETTER! (CUDA vs CPU battles, fastest wins!) ║
 ═══════════════════════════════════════════════════════════════
-║ Rank │ Handle              │ Benchmark             │ Score      │ Status ║
-╠══════╬═════════════════════╬══════════════════════╬════════════╬════════╣
+║ Rank │ Handle              │ Benchmark             │ Device │ Score      │ Status ║
+╠══════╬═════════════════════╬══════════════════════╬════════╬════════════╬════════╣
 ```
 
 **Separate Leaderboards for Each Benchmark Type**
@@ -32,7 +32,7 @@ def generate_markdown_leaderboard():
         if os.path.exists(leaderboard_file):
             with open(leaderboard_file, 'r') as f:
                 scores = json.load(f)
-            full_md += "## {bench.replace('_', ' ').title()} Leaderboard\n\n"
+            full_md += f"## {bench.replace('_', ' ').title()} Leaderboard\n\n"
             full_md += "| Rank | Handle | Benchmark | Device | Score | Status |\n|------|--------|-----------|--------|-------|--------|\n"
             for i, score in enumerate(scores[:10]):
                 rank = f"{i+1}"
