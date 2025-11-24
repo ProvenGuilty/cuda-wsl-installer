@@ -45,7 +45,17 @@ if [[ -z "$PHASE" ]]; then
   exit 1
 fi
 
+# Check for python3-venv
+if ! python3 -c "import venv" 2>/dev/null; then
+  echo "[ERROR] python3-venv is not available. Install it with: sudo apt install python3-venv" >&2
+  exit 1
+fi
+
 python3 -m venv "$VENV_PATH"
+if [[ ! -f "$VENV_PATH/bin/activate" ]]; then
+  echo "[ERROR] Failed to create virtual environment at $VENV_PATH" >&2
+  exit 1
+fi
 # shellcheck disable=SC1090
 source "$VENV_PATH/bin/activate"
 python -m pip install --upgrade pip setuptools wheel
@@ -75,11 +85,15 @@ else
 fi
 
 if [[ "$PHASE" == "baseline" ]]; then
+  echo "[setup_env] Installing baseline packages..."
   python -m pip install --upgrade torch==2.5.1 torchvision==0.20.1 tensorflow-cpu==2.18.0 pandas==2.2.3 matplotlib==3.9.2
 else
+  echo "[setup_env] Installing PyTorch with CUDA support..."
   python -m pip install --upgrade torch torchvision $PYTORCH_INDEX
+  echo "[setup_env] Installing TensorFlow with CUDA support..."
   python -m pip install --upgrade tensorflow[and-cuda]==2.18.0 pandas==2.2.3 matplotlib==3.9.2
   if [[ "$BENCH_SET" == "all" ]]; then
+    echo "[setup_env] Installing RAPIDS cuDF..."
     # Assume cu12 for CUDA 12.x, cu13 for 13.x
     if [[ "$PYTORCH_CUDA_SUFFIX" == "130" ]]; then
       python -m pip install --upgrade cudf-cu13 dask-cudf --extra-index-url=https://pypi.nvidia.com || python -m pip install --upgrade cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com
@@ -90,5 +104,7 @@ else
 fi
 
 fix_cudnn_links
+
+echo "[setup_env] Environment setup complete. Virtual environment at $VENV_PATH"
 
 deactivate >/dev/null 2>&1 || true
