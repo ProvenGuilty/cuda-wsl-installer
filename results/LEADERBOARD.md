@@ -47,9 +47,9 @@
 ## Contribute Your Scores! 🚀
 
 1. Fork this repo
-2. Set up the Python environment: `cd scripts/benchmarks && bash setup_env.sh --phase after`
-3. Run `python3 run_all_benchmarks.py` to test all benchmarks and update your scores
+2. Run `./install.sh` to set up the environment
+3. Run `source .cuda-wsl-bench-venv/bin/activate && python3 scripts/benchmark_runner.py --gpu` to run benchmarks
 4. Your scores auto-update `results/hacker_leaderboard_*.json` files
-5. Submit a PR with your results to add to the community leaderboard!
+5. Submit a PR with your results to add to the community leaderboard
 
 Benchmarks: PyTorch matmul, TensorFlow CNN, RAPIDS cuDF groupby.
