@@ -81,59 +81,6 @@ def run_once(size: int, device: torch.device) -> float:
     return time.perf_counter() - start
 
 
-def main() -> None:
-    args = parse_args()
-
-    # Check for CUDA availability and usability
-    cuda_usable = False
-    if torch.cuda.is_available() and torch.cuda.device_count() > 0:
-        try:
-            # Test device creation and simple operation
-            test_tensor = torch.randn(10, 10, device='cuda')
-            torch.cuda.synchronize()
-            cuda_usable = True
-        except Exception as e:
-            print(f"CUDA device test failed: {e}")
-
-    if args.device == "cuda" and not cuda_usable:
-        print("CUDA requested but not usable, falling back to CPU")
-        args.device = "cpu"
-
-    device = ensure_device(args.device)
-
-    # Try to run, fallback on CUDA error
-    try:
-        for _ in range(args.warmup):
-            run_once(args.size, device)
-
-        timings = [run_once(args.size, device) for _ in range(args.repeats)]
-        avg = sum(timings) / len(timings)
-
-        print(f"[benchmark] device={device.type} size={args.size} avg={avg:.4f}s")
-        
-        # Leaderboard code here
-        leaderboard_main(avg, args.device)
-
-    except Exception as e:
-        if 'cuda' in str(e).lower() and args.device == "cuda":
-            print(f"CUDA error: {e}, falling back to CPU")
-            args.device = "cpu"
-            device = ensure_device(args.device)
-            
-            for _ in range(args.warmup):
-                run_once(args.size, device)
-
-            timings = [run_once(args.size, device) for _ in range(args.repeats)]
-            avg = sum(timings) / len(timings)
-
-            print(f"[benchmark] device={device.type} size={args.size} avg={avg:.4f}s (fallback)")
-            
-            # Leaderboard code
-            leaderboard_main(avg, args.device)
-        else:
-            raise
-
-
 def leaderboard_main(avg, device):
     # Simplified leaderboard integration
     import subprocess
@@ -191,3 +138,59 @@ def leaderboard_main(avg, device):
         json.dump(scores, f, indent=2)
 
     print(f"Leaderboard updated. Your score: {avg:.4f}s on {device}")
+
+
+def main() -> None:
+    args = parse_args()
+
+    # Check for CUDA availability and usability
+    cuda_usable = False
+    if torch.cuda.is_available() and torch.cuda.device_count() > 0:
+        try:
+            # Test device creation and simple operation
+            test_tensor = torch.randn(10, 10, device='cuda')
+            torch.cuda.synchronize()
+            cuda_usable = True
+        except Exception as e:
+            print(f"CUDA device test failed: {e}")
+
+    if args.device == "cuda" and not cuda_usable:
+        print("CUDA requested but not usable, falling back to CPU")
+        args.device = "cpu"
+
+    device = ensure_device(args.device)
+
+    # Try to run, fallback on CUDA error
+    try:
+        for _ in range(args.warmup):
+            run_once(args.size, device)
+
+        timings = [run_once(args.size, device) for _ in range(args.repeats)]
+        avg = sum(timings) / len(timings)
+
+        print(f"[benchmark] device={device.type} size={args.size} avg={avg:.4f}s")
+        
+        # Leaderboard code here
+        leaderboard_main(avg, args.device)
+
+    except Exception as e:
+        if 'cuda' in str(e).lower() and args.device == "cuda":
+            print(f"CUDA error: {e}, falling back to CPU")
+            args.device = "cpu"
+            device = ensure_device(args.device)
+            
+            for _ in range(args.warmup):
+                run_once(args.size, device)
+
+            timings = [run_once(args.size, device) for _ in range(args.repeats)]
+            avg = sum(timings) / len(timings)
+
+            print(f"[benchmark] device={device.type} size={args.size} avg={avg:.4f}s (fallback)")
+            
+            # Leaderboard code
+            leaderboard_main(avg, args.device)
+        else:
+            raise
+
+if __name__ == "__main__":
+    main()
