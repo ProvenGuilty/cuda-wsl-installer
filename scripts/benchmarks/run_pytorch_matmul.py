@@ -194,7 +194,12 @@ System Specs for Top Scores (CPU vs GPU details):
         "driver_version": driver_version,
         "os": os_info
     }
-    scores.append(new_entry)
+    # Check if user already has a score, replace if so
+    existing_index = next((i for i, s in enumerate(scores) if s.get('handle') == github_handle), None)
+    if existing_index is not None:
+        scores[existing_index] = new_entry
+    else:
+        scores.append(new_entry)
 
     # Sort by lowest score (best first) and keep top 100
     scores = sorted(scores, key=lambda x: x.get("score", float('inf')))[:100]
