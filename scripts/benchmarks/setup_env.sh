@@ -100,7 +100,11 @@ echo "[setup_env] Installing core dependencies..."
 python -m pip install --upgrade numpy pandas matplotlib
 
 echo "[setup_env] Installing PyTorch..."
-python -m pip install --upgrade torch torchvision "$PYTORCH_INDEX"
+if [[ -n "$PYTORCH_INDEX" ]]; then
+  python -m pip install --upgrade torch torchvision "$PYTORCH_INDEX"
+else
+  python -m pip install --upgrade torch torchvision
+fi
 
 echo "[setup_env] Installing TensorFlow..."
 python -m pip install --upgrade tensorflow[and-cuda]
