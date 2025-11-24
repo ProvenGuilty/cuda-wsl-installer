@@ -54,7 +54,8 @@ if ARGS.device == "cuda" and not torch.cuda.is_available():
 
 def ensure_device(device: str) -> torch.device:
     if device == "cuda" and not torch.cuda.is_available():
-        raise SystemExit("CUDA device requested but torch.cuda.is_available() == False")
+        print("CUDA not available, using CPU")
+        device = "cpu"
     return torch.device(device)
 
 

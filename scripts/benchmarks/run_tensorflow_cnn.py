@@ -32,7 +32,20 @@ import tensorflow as tf  # noqa: E402
 
 def ensure_device(device: str) -> None:
     if device == "cuda":
-        print("Warning: TensorFlow GPU detection may not work, proceeding anyway")
+        try:
+            gpus = tf.config.list_physical_devices("GPU")
+            if not gpus:
+                print("TensorFlow did not detect GPU, falling back to CPU")
+                ARGS.device = "cpu"
+        except AttributeError:
+            # Fallback for older TF or CPU version
+            try:
+                if not tf.test.is_gpu_available():
+                    print("TensorFlow GPU not available, falling back to CPU")
+                    ARGS.device = "cpu"
+            except AttributeError:
+                print("TensorFlow GPU check failed, assuming CPU")
+                ARGS.device = "cpu"
 
 
 def build_model() -> tf.keras.Model:
