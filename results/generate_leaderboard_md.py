@@ -49,6 +49,8 @@ def generate_markdown_leaderboard():
                     delta = "-"
                     pct = "-"
                 status = score.get('status', 'UNKNOWN!')
+                if score.get('outdated'):
+                    status += " (outdated - please rerun)"
                 full_md += f"| {rank} | {handle} | {benchmark} | {device_type} | {time_score} | {delta} | {pct} | {status} |\n"
             
             full_md += "\n### System Specs for Top Scores\n"
