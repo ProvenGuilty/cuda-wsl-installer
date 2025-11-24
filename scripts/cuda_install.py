@@ -40,9 +40,46 @@ def run_cmd(cmd, check=True, shell=False):
         raise subprocess.CalledProcessError(result.returncode, cmd)
     return result
 
+def check_nvidia_drivers():
+    """Check NVIDIA driver compatibility."""
+    log_info("Checking NVIDIA driver compatibility...")
+    
+    try:
+        # Check nvidia-smi works
+        result = run_cmd("nvidia-smi --query-gpu=driver_version --format=csv,noheader,nounits")
+        driver_version = result.stdout.strip()
+        log_info(f"NVIDIA driver version: {driver_version}")
+        
+        # Check if driver supports WSL
+        if driver_version:
+            log_success("NVIDIA drivers appear compatible with WSL")
+            return True
+        else:
+            raise Exception("Empty driver version")
+            
+    except subprocess.CalledProcessError as e:
+        if "Driver/library version mismatch" in str(e):
+            log_error("NVIDIA Driver/Library version mismatch detected!")
+            log_error("This is a common WSL issue. To fix:")
+            log_error("1. Update NVIDIA drivers in Windows to latest version")
+            log_error("2. Restart WSL: wsl --shutdown && wsl")
+            log_error("3. If still failing, reinstall WSL kernel: wsl --update --rollback")
+            log_error("4. For GTX 1080 Ti, ensure driver 470.x or newer")
+            raise Exception("Driver mismatch - requires Windows-side fix")
+        else:
+            log_error(f"NVIDIA driver check failed: {e}")
+            raise
+
 def detect_gpu():
     """Detect GPU and compute capability."""
     log_info("Detecting GPU and CUDA capability...")
+    
+    # First check drivers
+    try:
+        check_nvidia_drivers()
+    except Exception:
+        log_error("Driver check failed. GPU detection will not work.")
+        return False, None
 
     # Check if nvidia-smi works
     try:
@@ -51,7 +88,7 @@ def detect_gpu():
         gpu_count = len([line for line in gpu_lines if line.strip()])
         log_info(f"Found {gpu_count} GPU(s)")
     except subprocess.CalledProcessError:
-        log_error("nvidia-smi not found or failed. No GPU support.")
+        log_error("nvidia-smi failed after driver check. Cannot detect GPU.")
         return False, None
 
     if gpu_count == 0:

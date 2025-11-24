@@ -301,19 +301,27 @@ results = run_all_benchmarks(use_gpu=True)
 
 ### Common Issues
 
-**"nvidia-smi not found"**
-- Ensure NVIDIA drivers are installed in Windows
-- Verify WSL2 GPU passthrough: `wsl --update && wsl --shutdown`
+**"nvidia-smi not found" or "Driver/library version mismatch"**
+- **This is the most common issue** with WSL GPU setup
+- **Solution:**
+  1. In Windows, update NVIDIA drivers to the latest version (GeForce Experience → Drivers)
+  2. For GTX 1080 Ti: Ensure driver version 470.x or newer
+  3. Restart WSL completely: `wsl --shutdown` then reopen WSL
+  4. If still failing: `wsl --update --rollback` to previous WSL kernel
+  5. Verify in Windows Device Manager that GPU shows under "Display adapters"
+- The installer will automatically detect this and fall back to CPU-only mode with clear error messages
 
 **CUDA installation fails**
 - Check internet connection
 - Ensure sudo privileges
 - Remove conflicting packages: `sudo apt-get remove cuda* nvidia*`
+- The installer handles this gracefully and continues with CPU benchmarks
 
 **Benchmark failures**
-- PyTorch: Usually works on all CUDA versions
-- TensorFlow: May fail on Pascal GPUs (sm_61); falls back to CPU
+- PyTorch: Usually works on all CUDA versions if GPU drivers are correct
+- TensorFlow: May fail on older GPUs (Pascal sm_61); automatically falls back to CPU
 - cuDF: Requires Ampere+ GPUs; falls back to pandas CPU
+- CUDA Samples: Uses Numba CUDA - works on all NVIDIA GPUs with proper drivers
 
 **Virtual environment issues**
 - Delete and recreate: `rm -rf .cuda-wsl-bench-venv && python3 scripts/env_setup.py`
