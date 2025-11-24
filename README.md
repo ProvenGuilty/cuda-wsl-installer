@@ -201,6 +201,7 @@ To participate in the community CUDA WSL benchmarks and contribute to the gamifi
 - CUDA installed via this repo.
 - Python environment with PyTorch and TensorFlow (use `scripts/benchmarks/setup_env.sh`).
 - Git configured with your GitHub handle (`git config user.name "YourGitHubUsername"`).
+- **System verification:** Run `nvidia-smi` to ensure GPU is detected, and `nvcc --version` to check CUDA.
 
 ### Running Benchmarks
 You can run individual benchmarks for targeted testing or all benchmarks at once for a full leaderboard submission.
@@ -249,7 +250,7 @@ For focused improvement on a specific score, run each separately:
 Each run automatically:
 - Captures your system specs (CPU, GPU, OS, CUDA/driver versions).
 - Pulls your GitHub handle from git config.
-- Appends results to `~/.cuda-wsl-benchmarks/hacker_leaderboard.json`.
+- Appends results to `results/hacker_leaderboard_*.json` (separate files per benchmark).
 - Displays the top 10 leaderboard with detailed specs for the top 5.
 
 ### Leaderboard Details
@@ -260,21 +261,46 @@ Each run automatically:
 
 Example output (simplified):
 ```
-NVIDIA
-═══════════════════════════════════════════════════════════════════════════════
-║   PHREAKERS & HACKERZ CUDA WSL LEADERBOARD - BBS 1985 STYLE!              ║
-║   Scoring: Lower times = BETTER! (CUDA vs CPU battles, fastest wins!)    ║
-═══════════════════════════════════════════════════════════════════════════════
+# CUDA WSL Hacker Leaderboard 🕹️
+
+   ███╗░░██╗██╗░░░██╗██╗██████╗░██╗░█████╗░
+   ████╗░██║██║░░░██║██║██╔══██╗██║██╔══██╗
+   ██╔██╗██║██║░░░██║██║██║░░██║██║███████║
+   ██║╚████║╚██╗░██╔╝██║██║░░██║██║██╔══██║
+   ██║░╚███║░╚████╔╝░██║██████╔╝██║██║░░██║
+   ╚═╝░░╚══╝░░╚═══╝░░╚═╝╚═════╝░╚═╝╚═╝░░╚═╝
+═══════════════════════════════════════════════════════════════
+║   PHREAKERS & HACKERZ CUDA WSL LEADERBOARD - BBS 1985 STYLE!   ║
+║   Scoring: Lower times = BETTER! (CUDA vs CPU battles, fastest wins!) ║
+═══════════════════════════════════════════════════════════════
 ║ Rank │ Handle              │ Benchmark             │ Score      │ Status ║
 ╠══════╬═════════════════════╬══════════════════════╬════════════╬════════╣
-║  1.  │ @ShaunRocks         │ pytorch_matmul        │ 0.0300s    │ ELITE HACKER! ║
-║  2.  │ @ProvenGuilty       │ pytorch_matmul        │ 0.0540s    │ PHREAKING IT! ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-   ▀▄▀▄▀▄ YOU DA MAN! ▄▀▄▀▄   STAY HACKIN' - NO LAMERS ALLOWED   ▀▄▀▄▀▄ YOU DA MAN! ▀▄▀▄▀▄
 
-System Specs for Top Scores (CPU vs GPU details):
-1. @ShaunRocks - pytorch_matmul (GPU): CPU: AMD Ryzen 9 | GPU: RTX 4090 | OS: Ubuntu 22.04 | CUDA: 12.2 | Driver: 525.60
-2. @ProvenGuilty - pytorch_matmul (GPU): CPU: Intel i7 | GPU: GTX 1080 Ti | OS: Ubuntu 20.04 | CUDA: 11.5 | Driver: 470.42
+## Pytorch Matmul Leaderboard
+
+| Rank | Handle | Benchmark | Score | Status |
+|------|--------|-----------|-------|--------|
+| 1 | @ShaunRocks | pytorch_matmul | 0.0300s | ELITE HACKER! |
+| 2 | @ProvenGuilty | pytorch_matmul | 0.0540s | PHREAKING IT! |
+
+### System Specs for Top Scores
+1. **@ShaunRocks** - pytorch_matmul (GPU): CPU: AMD Ryzen 9 | GPU: RTX 4090 | OS: Ubuntu 22.04 | CUDA: 12.2 | Driver: 525.60
+2. **@ProvenGuilty** - pytorch_matmul (GPU): CPU: Intel i7 | GPU: GTX 1080 Ti | OS: Ubuntu 20.04 | CUDA: 11.5 | Driver: 470.42
+
+## Tensorflow Cnn Leaderboard
+
+| Rank | Handle | Benchmark | Score | Status |
+|------|--------|-----------|-------|--------|
+| 1 | @YourHandle | tensorflow_cnn | 4.6939s | ELITE HACKER! |
+
+### System Specs for Top Scores
+1. **@YourHandle** - tensorflow_cnn (GPU): CPU: Your CPU | GPU: Your GPU | OS: Ubuntu 24.04 | CUDA: 12.5 | Driver: Your Driver
+
+## Cudf Groupby Leaderboard
+
+| Rank | Handle | Benchmark | Score | Status |
+|------|--------|-----------|-------|--------|
+| 1 | @AnotherUser | cudf_groupby | 0.0293s | ELITE HACKER! |
 ```
 
 **View the live leaderboard on GitHub:** [results/LEADERBOARD.md](results/LEADERBOARD.md)
