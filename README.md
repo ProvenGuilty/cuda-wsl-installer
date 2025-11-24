@@ -212,7 +212,7 @@ You can run individual benchmarks for targeted testing or all benchmarks at once
 
 **Option 1: Run All Benchmarks (Recommended for Leaderboard Submission)**
 ```bash
-python run_all_benchmarks.py
+python3 run_all_benchmarks.py
 ```
 This runs PyTorch matmul, TensorFlow CNN, and RAPIDS cuDF groupby on GPU, updates all leaderboards, and regenerates the markdown file.
 
@@ -229,25 +229,25 @@ For focused improvement on a specific score, run each separately:
 
 2. **Run PyTorch matrix multiplication benchmark:**
    ```bash
-   python run_pytorch_matmul.py --device cuda  # GPU run
+   python3 run_pytorch_matmul.py --device cuda  # GPU run
    # or
-   python run_pytorch_matmul.py --device cpu   # CPU run
+   python3 run_pytorch_matmul.py --device cpu   # CPU run
    ```
    Options: `--size 2048` (matrix size), `--warmup 5`, `--repeats 10`.
 
 3. **Run TensorFlow CNN benchmark:**
    ```bash
-   python run_tensorflow_cnn.py --device cuda  # GPU run
+   python3 run_tensorflow_cnn.py --device cuda  # GPU run
    # or
-   python run_tensorflow_cnn.py --device cpu   # CPU run
+   python3 run_tensorflow_cnn.py --device cpu   # CPU run
    ```
    Options: `--epochs 1`, `--batch_size 128`.
 
 4. **Run RAPIDS cuDF groupby benchmark:**
    ```bash
-   python run_cudf_groupby.py --device cuda  # GPU run (requires RAPIDS)
+   python3 run_cudf_groupby.py --device cuda  # GPU run (requires RAPIDS)
    # or
-   python run_cudf_groupby.py --device cpu   # CPU run (pandas)
+   python3 run_cudf_groupby.py --device cpu   # CPU run (pandas)
    ```
    Options: `--rows 1000000` (number of rows).
 
