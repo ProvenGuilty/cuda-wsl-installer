@@ -32,15 +32,16 @@ def generate_markdown_leaderboard():
         if os.path.exists(leaderboard_file):
             with open(leaderboard_file, 'r') as f:
                 scores = json.load(f)
-            full_md += f"## {bench.replace('_', ' ').title()} Leaderboard\n\n"
-            full_md += "| Rank | Handle | Benchmark | Score | Status |\n|------|--------|-----------|-------|--------|\n"
+            full_md += "## {bench.replace('_', ' ').title()} Leaderboard\n\n"
+            full_md += "| Rank | Handle | Benchmark | Device | Score | Status |\n|------|--------|-----------|--------|-------|--------|\n"
             for i, score in enumerate(scores[:10]):
                 rank = f"{i+1}"
                 handle = score.get('handle', 'Anonymous')
                 benchmark = score['benchmark']
+                device_type = 'GPU' if not benchmark.endswith('_cpu') else 'CPU'
                 time_score = f"{score['score']:.4f}s" if 'score' in score else 'DNF'
                 status = score.get('status', 'UNKNOWN!')
-                full_md += f"| {rank} | {handle} | {benchmark} | {time_score} | {status} |\n"
+                full_md += f"| {rank} | {handle} | {benchmark} | {device_type} | {time_score} | {status} |\n"
             
             full_md += "\n### System Specs for Top Scores\n"
             for i, score in enumerate(scores[:5]):

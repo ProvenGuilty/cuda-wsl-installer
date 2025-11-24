@@ -195,10 +195,11 @@ System Specs for Top Scores (CPU vs GPU details):
         "driver_version": driver_version,
         "os": os_info
     }
-    # Check if user already has a score, replace if so
+    # Check if user already has a score, keep the best (lowest time)
     existing_index = next((i for i, s in enumerate(scores) if s.get('handle') == github_handle), None)
     if existing_index is not None:
-        scores[existing_index] = new_entry
+        if result['seconds'] < scores[existing_index]['score']:
+            scores[existing_index] = new_entry
     else:
         scores.append(new_entry)
 

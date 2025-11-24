@@ -278,10 +278,10 @@ Example output (simplified):
 
 ## Pytorch Matmul Leaderboard
 
-| Rank | Handle | Benchmark | Score | Status |
-|------|--------|-----------|-------|--------|
-| 1 | @ShaunRocks | pytorch_matmul | 0.0300s | ELITE HACKER! |
-| 2 | @ProvenGuilty | pytorch_matmul | 0.0540s | PHREAKING IT! |
+| Rank | Handle | Benchmark | Device | Score | Status |
+|------|--------|-----------|--------|-------|--------|
+| 1 | @ShaunRocks | pytorch_matmul | GPU | 0.0300s | ELITE HACKER! |
+| 2 | @ProvenGuilty | pytorch_matmul | GPU | 0.0540s | PHREAKING IT! |
 
 ### System Specs for Top Scores
 1. **@ShaunRocks** - pytorch_matmul (GPU): CPU: AMD Ryzen 9 | GPU: RTX 4090 | OS: Ubuntu 22.04 | CUDA: 12.2 | Driver: 525.60
@@ -289,18 +289,18 @@ Example output (simplified):
 
 ## Tensorflow Cnn Leaderboard
 
-| Rank | Handle | Benchmark | Score | Status |
-|------|--------|-----------|-------|--------|
-| 1 | @YourHandle | tensorflow_cnn | 4.6939s | ELITE HACKER! |
+| Rank | Handle | Benchmark | Device | Score | Status |
+|------|--------|-----------|--------|-------|--------|
+| 1 | @YourHandle | tensorflow_cnn | GPU | 4.6939s | ELITE HACKER! |
 
 ### System Specs for Top Scores
 1. **@YourHandle** - tensorflow_cnn (GPU): CPU: Your CPU | GPU: Your GPU | OS: Ubuntu 24.04 | CUDA: 12.5 | Driver: Your Driver
 
 ## Cudf Groupby Leaderboard
 
-| Rank | Handle | Benchmark | Score | Status |
-|------|--------|-----------|-------|--------|
-| 1 | @AnotherUser | cudf_groupby | 0.0293s | ELITE HACKER! |
+| Rank | Handle | Benchmark | Device | Score | Status |
+|------|--------|-----------|--------|-------|--------|
+| 1 | @AnotherUser | cudf_groupby | CPU | 0.0293s | ELITE HACKER! |
 ```
 
 **View the live leaderboard on GitHub:** [results/LEADERBOARD.md](results/LEADERBOARD.md)
