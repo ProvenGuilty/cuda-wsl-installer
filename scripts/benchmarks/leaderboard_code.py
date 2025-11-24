@@ -117,17 +117,17 @@ new_entry = {
     else:
         scores.append(new_entry)
 
-# Sort by lowest score (best first) and keep top 100
-scores = sorted(scores, key=lambda x: x.get("score", float('inf')))[:100]
+    # Sort by lowest score (best first) and keep top 100
+    scores = sorted(scores, key=lambda x: x.get("score", float('inf')))[:100]
 
-with open(leaderboard_file, 'w') as f:
-    json.dump(scores, f, indent=2)
+    with open(leaderboard_file, 'w') as f:
+        json.dump(scores, f, indent=2)
 
-# Generate markdown for GitHub
-try:
-    subprocess.run([sys.executable, os.path.join(os.path.dirname(leaderboard_file), "generate_leaderboard_md.py")], check=True)
-except:
-    pass  # Ignore if generation fails
+    # Generate markdown for GitHub
+    try:
+        subprocess.run([sys.executable, os.path.join(os.path.dirname(leaderboard_file), "generate_leaderboard_md.py")], check=True)
+    except:
+        pass  # Ignore if generation fails
 
-# Display the leaderboard
-print_hacker_leaderboard(scores)
+    # Display the leaderboard
+    print_hacker_leaderboard(scores)
