@@ -21,10 +21,10 @@
 
 | Rank | Handle | Benchmark | Device | Score | Delta (s) | Faster by % | Status |
 |------|--------|-----------|--------|-------|-----------|-------------|--------|
-| 1 | @Christopher Ryan | pytorch_matmul | cpu | 0.0632s | - | - | ELITE HACKER! |
+| 1 | @Christopher Ryan | pytorch_matmul | cuda | 0.0021s | - | - | ELITE HACKER! |
 
 ### System Specs for Top Scores
-1. **@Christopher Ryan** - pytorch_matmul (cpu): CPU: Intel(R) Core(TM) i7-7700K CPU @ 4.20GHz | GPU: NVIDIA GeForce GTX 1080 Ti | OS: Ubuntu 24.04.3 LTS | CUDA: 12.5 | Driver: 581.57
+1. **@Christopher Ryan** - pytorch_matmul (cuda): CPU: Intel(R) Core(TM) i7-7700K CPU @ 4.20GHz | GPU: NVIDIA GeForce GTX 1080 Ti | OS: Ubuntu 24.04.3 LTS | CUDA: 12.5 | Driver: 581.57
 
 ## Tensorflow Cnn Leaderboard
 
