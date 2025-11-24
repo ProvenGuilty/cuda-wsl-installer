@@ -1,0 +1,11 @@
+{
+  "device": "cpu",
+  "epochs": 1,
+  "batch_size": 256,
+  "seconds": 4.224685714000032,
+  "history": {
+    "loss": [
+      0.22204752266407013
+    ]
+  }
+}
