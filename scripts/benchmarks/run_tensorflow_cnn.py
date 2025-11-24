@@ -50,7 +50,7 @@ def ensure_device(device: str) -> None:
 def build_model() -> tf.keras.Model:
     model = tf.keras.Sequential(
         [
-            tf.keras.layers.InputLayer(input_shape=(28, 28, 1)),
+            tf.keras.layers.InputLayer(shape=(28, 28, 1)),
             tf.keras.layers.Conv2D(32, 3, activation="relu"),
             tf.keras.layers.Flatten(),
             tf.keras.layers.Dense(128, activation="relu"),
