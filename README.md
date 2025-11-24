@@ -285,27 +285,26 @@ Example output (simplified):
 | Rank | Handle | Benchmark | Device | Score | Delta (s) | Status |
 |------|--------|-----------|--------|-------|-----------|--------|
 | 1 | @ShaunRocks | pytorch_matmul | GPU | 0.0300s | 0.0240 | ELITE HACKER! |
-| 2 | @ProvenGuilty | pytorch_matmul | GPU | 0.0540s | - | PHREAKING IT! |
+| 2 | @Christopher Ryan | pytorch_matmul | GPU | 0.0540s | - | PHREAKING IT! |
 
 ### System Specs for Top Scores
-1. **@ShaunRocks** - pytorch_matmul (GPU): CPU: AMD Ryzen 9 | GPU: RTX 4090 | OS: Ubuntu 22.04 | CUDA: 12.2 | Driver: 525.60
-2. **@ProvenGuilty** - pytorch_matmul (GPU): CPU: Intel i7 | GPU: GTX 1080 Ti | OS: Ubuntu 20.04 | CUDA: 11.5 | Driver: 470.42
+1. **@ShaunRocks** - pytorch_matmul (GPU): CPU: AMD Ryzen 9 5900X 12-Core Processor | GPU: NVIDIA GeForce RTX 5070 | OS: Ubuntu 22.04.3 LTS | CUDA: 13.0 | Driver: 581.80
+2. **@Christopher Ryan** - pytorch_matmul (GPU): CPU: Intel(R) Core(TM) i7-7700K CPU @ 4.20GHz | GPU: NVIDIA GeForce GTX 1080 Ti | OS: Ubuntu 24.04.3 LTS | CUDA: 12.5 | Driver: 581.57
 
 ## Tensorflow Cnn Leaderboard
 
 | Rank | Handle | Benchmark | Device | Score | Delta (s) | Status |
 |------|--------|-----------|--------|-------|-----------|--------|
-| 1 | @YourHandle | tensorflow_cnn | GPU | 4.6939s | 0.1234 | ELITE HACKER! |
+| 1 | @Christopher Ryan | tensorflow_cnn | GPU | 4.6939s | - | ELITE HACKER! |
 
 ### System Specs for Top Scores
-1. **@YourHandle** - tensorflow_cnn (GPU): CPU: Your CPU | GPU: Your GPU | OS: Ubuntu 24.04 | CUDA: 12.5 | Driver: Your Driver
+1. **@Christopher Ryan** - tensorflow_cnn (GPU): CPU: Intel(R) Core(TM) i7-7700K CPU @ 4.20GHz | GPU: NVIDIA GeForce GTX 1080 Ti | OS: Ubuntu 24.04.3 LTS | CUDA: 12.5 | Driver: 581.57
 
 ## Cudf Groupby Leaderboard
 
 | Rank | Handle | Benchmark | Device | Score | Delta (s) | Status |
 |------|--------|-----------|--------|-------|-----------|--------|
-| 1 | @AnotherUser | cudf_groupby | CPU | 0.0293s | 0.0012 | ELITE HACKER! |
-```
+| 1 | @Christopher Ryan | cudf_groupby | CPU | 0.0250s | - | ELITE HACKER! |
 
 **View the live leaderboard on GitHub:** [results/LEADERBOARD.md](results/LEADERBOARD.md)
 
@@ -313,9 +312,10 @@ Contribute by running benchmarks and submitting results via PRs—let's see who 
 
 ## How to Contribute Scores
 1. Fork this repo
-2. Run `python run_all_benchmarks.py` to test all benchmarks and update your scores
-3. Your scores auto-update `results/hacker_leaderboard_*.json` files
-4. Submit a PR with your results to add to the community leaderboard!
+2. Set up the Python environment: `cd scripts/benchmarks && bash setup_env.sh --phase after`
+3. Run `python3 run_all_benchmarks.py` to test all benchmarks and update your scores
+4. Your scores auto-update `results/hacker_leaderboard_*.json` files
+5. Submit a PR with your results to add to the community leaderboard!
 
 * **`nvidia-smi` missing:** Install/repair the NVIDIA Windows driver, then
   restart WSL (`wsl --shutdown`).
