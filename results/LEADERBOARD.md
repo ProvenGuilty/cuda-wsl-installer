@@ -21,8 +21,11 @@
 
 | Rank | Handle | Benchmark | Device | Score | Status |
 |------|--------|-----------|--------|-------|--------|
+| 1 | @ShaunRocks | pytorch_matmul | GPU | 0.0300s | ELITE HACKER! |
 
 ### System Specs for Top Scores
+1. **@ShaunRocks** - pytorch_matmul (GPU): CPU: AMD Ryzen 9 5900X 12-Core Processor | GPU: NVIDIA GeForce RTX 5070 | OS: Ubuntu 22.04.3 LTS | CUDA: 12.2 | Driver: 525.60.13
+
 ## Tensorflow Cnn Leaderboard
 
 | Rank | Handle | Benchmark | Device | Score | Status |
