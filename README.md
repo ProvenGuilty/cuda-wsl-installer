@@ -1,5 +1,7 @@
 # CUDA WSL Installer
 
+🏆 **[View the Community Leaderboard](results/LEADERBOARD.md)** - Run benchmarks, compare scores, and contribute via PRs!
+
 Automated CUDA installation scripts for Windows 11 developers using WSL2. The
 repository detects the GPU’s compute capability from inside WSL and installs
 the matching CUDA toolkit, samples, and developer prerequisites.
@@ -251,7 +253,8 @@ NVIDIA
 System Specs for Top Scores (CPU vs GPU details):
 1. @ShaunRocks - pytorch_matmul (GPU): CPU: AMD Ryzen 9 | GPU: RTX 4090 | OS: Ubuntu 22.04 | CUDA: 12.2 | Driver: 525.60
 2. @ProvenGuilty - pytorch_matmul (GPU): CPU: Intel i7 | GPU: GTX 1080 Ti | OS: Ubuntu 20.04 | CUDA: 11.5 | Driver: 470.42
-```
+
+**View the live leaderboard on GitHub:** [results/LEADERBOARD.md](results/LEADERBOARD.md)
 
 Contribute by running benchmarks and submitting results via PRs—let's see who dominates the CUDA WSL arena! 🚀
 
