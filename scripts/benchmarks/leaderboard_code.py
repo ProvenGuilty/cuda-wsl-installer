@@ -3,6 +3,7 @@
 import json
 import os
 from datetime import datetime
+import sys
 
 # Define the leaderboard display function
 def print_hacker_leaderboard(scores):
@@ -50,8 +51,8 @@ System Specs for Top Scores (CPU vs GPU details):
         device_type = 'GPU' if 'cuda' in benchmark.lower() else 'CPU'
         print(f"{rank}. {handle} - {benchmark} ({device_type}): CPU: {cpu} | GPU: {gpu} | OS: {os_} | CUDA: {cuda} | Driver: {driver}")
 
-# Append to shared leaderboard file
-leaderboard_file = os.path.expanduser("~/.cuda-wsl-benchmarks/hacker_leaderboard.json")
+# Append to shared leaderboard file (now in repo for public visibility)
+leaderboard_file = os.path.join(os.path.dirname(__file__), "../../results/hacker_leaderboard.json")
 if os.path.exists(leaderboard_file):
     with open(leaderboard_file, 'r') as f:
         scores = json.load(f)
@@ -108,6 +109,12 @@ scores = sorted(scores, key=lambda x: x.get("score", float('inf')))[:100]
 
 with open(leaderboard_file, 'w') as f:
     json.dump(scores, f, indent=2)
+
+# Generate markdown for GitHub
+try:
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(leaderboard_file), "generate_leaderboard_md.py")], check=True)
+except:
+    pass  # Ignore if generation fails
 
 # Display the leaderboard
 print_hacker_leaderboard(scores)
