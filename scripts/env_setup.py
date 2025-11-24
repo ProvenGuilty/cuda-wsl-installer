@@ -96,10 +96,8 @@ def install_packages(use_gpu=True):
         except:
             pass
         
-        if cuda_version.startswith('13'):
-            pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121"  # CUDA 12.1+ compatible
-        else:
-            pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124"
+        # Use cu124 for CUDA 12+ (compatible with 13)
+        pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124"
     else:
         pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu"
 
