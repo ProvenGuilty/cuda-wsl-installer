@@ -1,0 +1,3 @@
+| Timestamp | Host | GPU | Track | Bench Set | Test | Baseline (s) | CUDA (s) | Improvement % |
+|---|---|---|---|---|---|---:|---:|---:|
+| 2025-11-24T07:43:17Z | linux | RTX 5070 Ti | 13.0 | all | RAPIDS cuDF groupby | 0.0532 | 0.0394 | 25.85% |
