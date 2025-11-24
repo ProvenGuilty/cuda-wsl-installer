@@ -15,7 +15,7 @@ import pandas as pd
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Groupby benchmark")
-    parser.add_argument("--rows", type=int, default=5_000_000)
+    parser.add_argument("--rows", type=int, default=1_000_000)  # Reduced from 5_000_000
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
     parser.add_argument("--result-file", type=Path)
     return parser.parse_args()

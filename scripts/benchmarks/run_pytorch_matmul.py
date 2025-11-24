@@ -16,7 +16,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--size",
         type=int,
-        default=4096,
+        default=2048,  # Reduced from 4096 for consumer GPUs
         help="Matrix dimension (size x size)",
     )
     parser.add_argument(

@@ -141,6 +141,9 @@ Give teammates a way to quantify the benefit of enabling CUDA in WSL. Run the
 GPU version first, then repeat with `CUDA_VISIBLE_DEVICES=` (empty) or
 `CUDA_VISIBLE_DEVICES=-1` to force CPU-only execution.
 
+The benchmarks are optimized for consumer-grade gaming GPUs (RTX/GTX series).
+Defaults are set low for broad compatibility; increase for high-end cards.
+
 1. **CUDA Samples benchmarks** – great for quick sanity/perf checks using NVIDIA’s reference kernels (GPU-only)
    ```bash
    # N-body simulation
@@ -154,7 +157,7 @@ GPU version first, then repeat with `CUDA_VISIBLE_DEVICES=` (empty) or
    ```python
    import torch, time
 
-   x = torch.randn(4096, 4096, device="cuda")
+   x = torch.randn(2048, 2048, device="cuda")  # Reduced size for consumer GPUs
    torch.cuda.synchronize()
    t0 = time.time(); _ = x @ x; torch.cuda.synchronize()
    print("GPU matmul:", time.time() - t0)
@@ -169,7 +172,7 @@ GPU version first, then repeat with `CUDA_VISIBLE_DEVICES=` (empty) or
    import tensorflow as tf
 
    (x_train, y_train), _ = tf.keras.datasets.mnist.load_data()
-   x_train = x_train[..., None]/255.0
+   x_train = x_train[..., None].astype("float32") / 255.0
    model = tf.keras.Sequential([
        tf.keras.layers.Conv2D(32, 3, activation='relu', input_shape=(28,28,1)),
        tf.keras.layers.Flatten(),
@@ -177,7 +180,7 @@ GPU version first, then repeat with `CUDA_VISIBLE_DEVICES=` (empty) or
        tf.keras.layers.Dense(10)
    ])
    model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True))
-   model.fit(x_train, y_train, epochs=1, batch_size=256)
+   model.fit(x_train, y_train, epochs=1, batch_size=128)  # Reduced batch size
    ```
    Run once normally, then re-run with `CUDA_VISIBLE_DEVICES=-1` to show the CPU
    slowdown.
@@ -185,7 +188,7 @@ GPU version first, then repeat with `CUDA_VISIBLE_DEVICES=` (empty) or
 4. **RAPIDS cuDF vs pandas** – GPU-accelerated analytics workflow to compare ETL/groupby latency against CPU pandas (install: `pip install cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com`)
    ```python
    import cudf, numpy as np
-   df = cudf.DataFrame({"a": np.random.randint(0, 1000, 5_000_000), "b": np.random.rand(5_000_000)})
+   df = cudf.DataFrame({"a": np.random.randint(0, 1000, 1_000_000), "b": np.random.rand(1_000_000)})  # Reduced rows
    %time df.groupby("a").b.mean()
    ```
    Switch to pandas for the CPU baseline.
@@ -225,7 +228,7 @@ For focused improvement on a specific score, run each separately:
    # or
    python run_pytorch_matmul.py --device cpu   # CPU run
    ```
-   Options: `--size 4096` (matrix size), `--warmup 5`, `--repeats 10`.
+   Options: `--size 2048` (matrix size), `--warmup 5`, `--repeats 10`.
 
 3. **Run TensorFlow CNN benchmark:**
    ```bash
@@ -233,7 +236,7 @@ For focused improvement on a specific score, run each separately:
    # or
    python run_tensorflow_cnn.py --device cpu   # CPU run
    ```
-   Options: `--epochs 1`, `--batch_size 256`.
+   Options: `--epochs 1`, `--batch_size 128`.
 
 4. **Run RAPIDS cuDF groupby benchmark:**
    ```bash
@@ -241,7 +244,7 @@ For focused improvement on a specific score, run each separately:
    # or
    python run_cudf_groupby.py --device cpu   # CPU run (pandas)
    ```
-   Options: `--rows 5000000` (number of rows).
+   Options: `--rows 1000000` (number of rows).
 
 Each run automatically:
 - Captures your system specs (CPU, GPU, OS, CUDA/driver versions).

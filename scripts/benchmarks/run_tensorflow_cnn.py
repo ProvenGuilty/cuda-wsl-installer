@@ -13,8 +13,8 @@ from pathlib import Path
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Benchmark TF CNN training")
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cpu")
-    parser.add_argument("--epochs", type=int, default=1)
-    parser.add_argument("--batch-size", type=int, default=256)
+    parser.add_argument("--epochs", type=int, default=1)  # Already low
+    parser.add_argument("--batch-size", type=int, default=128)  # Reduced from 256
     parser.add_argument("--result-file", type=Path)
     return parser.parse_args()
 
