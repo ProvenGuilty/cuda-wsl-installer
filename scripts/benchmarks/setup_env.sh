@@ -63,12 +63,12 @@ fix_cudnn_links() {
 }
 
 if [[ "$PHASE" == "baseline" ]]; then
-  python -m pip install --upgrade torch==2.5.1 torchvision==0.20.1 tensorflow-cpu==2.17.1 pandas==2.2.3 matplotlib==3.9.2
+  python -m pip install --upgrade torch==2.5.1 torchvision==0.20.1 tensorflow-cpu==2.18.0 pandas==2.2.3 matplotlib==3.9.2
 else
-  python -m pip install --upgrade torch torchvision --index-url https://download.pytorch.org/whl/cu121
-  python -m pip install --upgrade tensorflow==2.17.1 pandas==2.2.3 matplotlib==3.9.2
+  python -m pip install --upgrade torch torchvision --index-url https://download.pytorch.org/whl/cu126
+  python -m pip install --upgrade tensorflow[and-cuda]==2.18.0 pandas==2.2.3 matplotlib==3.9.2
   if [[ "$BENCH_SET" == "all" ]]; then
-    python -m pip install --upgrade cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com
+    python -m pip install --upgrade cudf-cu13 dask-cudf --extra-index-url=https://pypi.nvidia.com || python -m pip install --upgrade cudf-cu12 dask-cudf --extra-index-url=https://pypi.nvidia.com
   fi
 fi
 

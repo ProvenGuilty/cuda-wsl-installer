@@ -25,6 +25,11 @@ TESTS = {
         "metric": "seconds",
         "unit": "s",
     },
+    "cuda_matmul": {
+        "label": "CUDA MatMul",
+        "metric": "seconds",
+        "unit": "s",
+    },
 }
 
 

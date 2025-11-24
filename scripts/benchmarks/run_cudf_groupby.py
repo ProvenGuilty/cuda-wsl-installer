@@ -44,7 +44,6 @@ def run_gpu(rows: int) -> float:
     )
     start = time.perf_counter()
     _ = df.groupby("key").value.mean()
-    cudf.utils.utils.clear_cached_memory()
     return time.perf_counter() - start
 
 
