@@ -102,7 +102,24 @@ def install_packages(use_gpu=True, venv_python=None):
 
     packages = [pytorch_package, "pandas", "loguru", tensorflow_version]
 
-    if use_gpu and cuda_version.startswith('12'):
+    # Always install GPU packages if GPU hardware is available (even if CUDA toolkit install failed)
+    gpu_hardware_available = False
+    try:
+        result = subprocess.run(['nvidia-smi', '--list-gpus'], capture_output=True, text=True, timeout=5)
+        if result.returncode == 0 and len(result.stdout.strip().split('\n')) > 0:
+            gpu_hardware_available = True
+    except:
+        pass
+
+    if gpu_hardware_available:
+        if cuda_version.startswith('12'):
+            packages.extend(["cudf-cu12", "cupy-cuda12x", "numba", "numba-cuda"])
+        elif cuda_version.startswith('13'):
+            packages.extend(["cudf-cu12", "cupy-cuda12x", "numba", "numba-cuda"])
+        else:
+            # Default to CUDA 12 packages if version detection fails
+            packages.extend(["cudf-cu12", "cupy-cuda12x", "numba", "numba-cuda"])
+    elif use_gpu and cuda_version.startswith('12'):
         packages.extend(["cudf-cu12", "cupy-cuda12x", "numba", "numba-cuda"])
     elif use_gpu and cuda_version.startswith('13'):
         packages.extend(["cudf-cu12", "cupy-cuda12x", "numba", "numba-cuda"])
