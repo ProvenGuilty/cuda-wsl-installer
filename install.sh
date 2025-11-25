@@ -71,7 +71,7 @@ install_cuda() {
     log_info "Installing CUDA..."
 
     # Try to install CUDA, but don't fail the whole script
-    if python3 scripts/cuda_install.py; then
+    if run_cmd python3 scripts/cuda_install.py; then
         log_success "CUDA installation completed"
     else
         log_error "CUDA installation failed. Falling back to CPU-only mode."
@@ -162,9 +162,16 @@ main() {
     install_cuda
 
     # Setup environment
-    if ! python3 scripts/env_setup.py --venv-path "$VENV_DIR" --gpu $USE_GPU; then
-        log_error "Environment setup failed. Exiting."
-        exit 1
+    if [ "$DRY_RUN" = true ]; then
+        if ! python3 scripts/env_setup.py --venv-path "$VENV_DIR" --gpu $USE_GPU --dry-run; then
+            log_error "Environment setup failed. Exiting."
+            exit 1
+        fi
+    else
+        if ! python3 scripts/env_setup.py --venv-path "$VENV_DIR" --gpu $USE_GPU; then
+            log_error "Environment setup failed. Exiting."
+            exit 1
+        fi
     fi
 
     # Activate venv for subsequent operations
@@ -180,7 +187,8 @@ main() {
     fi
 
     # Run benchmarks
-    if ! python3 scripts/benchmark_runner.py --gpu $USE_GPU --venv-python "$VENV_PYTHON" --skip-leaderboard; then
+    device_arg=$([ "$USE_GPU" = true ] && echo "cuda" || echo "cpu")
+    if ! run_cmd python3 scripts/benchmark_runner.py --device $device_arg --venv-python "$VENV_PYTHON" --skip-leaderboard; then
         log_warning "Some benchmarks failed, but continuing..."
     fi
 
@@ -190,7 +198,7 @@ main() {
     fi
 
     log_success "Installation complete! Leaderboard available at: results/LEADERBOARD.md"
-    log_info "To rerun benchmarks: source $VENV_DIR/bin/activate && python3 scripts/benchmark_runner.py --gpu $USE_GPU"
+    log_info "To rerun benchmarks: source $VENV_DIR/bin/activate && python3 scripts/benchmark_runner.py --device $device_arg"
 }
 
 # Run main
