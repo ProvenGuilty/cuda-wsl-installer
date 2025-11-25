@@ -108,7 +108,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--venv-path', default='.cuda-wsl-bench-venv')
     parser.add_argument('--gpu', action='store_true', default=True)
+    parser.add_argument('--dry-run', action='store_true', help='Show what would be done without executing')
     args = parser.parse_args()
+
+    if args.dry_run:
+        log_info("DRY RUN: Would setup environment with:")
+        log_info(f"  VENV path: {args.venv_path}")
+        log_info(f"  GPU mode: {args.gpu}")
+        log_info("  Would create venv, upgrade pip, install packages")
+        return
 
     try:
         venv_path = setup_venv(args.venv_path)

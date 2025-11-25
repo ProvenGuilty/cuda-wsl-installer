@@ -123,7 +123,16 @@ def main():
     parser.add_argument('--gpu', action='store_true', default=True)
     parser.add_argument('--venv-python', help='Path to venv python executable')
     parser.add_argument('--skip-leaderboard', action='store_true')
+    parser.add_argument('--dry-run', action='store_true', help='Show what would be done without executing')
     args = parser.parse_args()
+
+    if args.dry_run:
+        log_info("DRY RUN: Would run benchmarks with:")
+        log_info(f"  GPU mode: {args.gpu}")
+        log_info("  Would run PyTorch matmul, TensorFlow CNN, cuDF groupby, CUDA kernels")
+        if not args.skip_leaderboard:
+            log_info("  Would update leaderboard")
+        return
 
     log_info("Starting benchmark runner...")
 

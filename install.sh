@@ -71,7 +71,7 @@ install_cuda() {
     log_info "Installing CUDA..."
 
     # Try to install CUDA, but don't fail the whole script
-    if python3 scripts/cuda_install.py; then
+    if python3 scripts/cuda_install.py ${DRY_RUN:+--dry-run}; then
         log_success "CUDA installation completed"
     else
         log_error "CUDA installation failed. Falling back to CPU-only mode."
@@ -163,12 +163,12 @@ main() {
 
     # Setup environment
     if [ "$USE_GPU" = true ]; then
-        if ! python3 scripts/env_setup.py --venv-path "$VENV_DIR" --gpu; then
+        if ! python3 scripts/env_setup.py --venv-path "$VENV_DIR" --gpu ${DRY_RUN:+--dry-run}; then
             log_error "Environment setup failed. Exiting."
             exit 1
         fi
     else
-        if ! python3 scripts/env_setup.py --venv-path "$VENV_DIR"; then
+        if ! python3 scripts/env_setup.py --venv-path "$VENV_DIR" ${DRY_RUN:+--dry-run}; then
             log_error "Environment setup failed. Exiting."
             exit 1
         fi
@@ -188,11 +188,11 @@ main() {
 
     # Run benchmarks
     if [ "$USE_GPU" = true ]; then
-        if ! python3 scripts/benchmark_runner.py --gpu --venv-python "$VENV_PYTHON" --skip-leaderboard; then
+        if ! python3 scripts/benchmark_runner.py --gpu --venv-python "$VENV_PYTHON" --skip-leaderboard ${DRY_RUN:+--dry-run}; then
             log_warning "Some benchmarks failed, but continuing..."
         fi
     else
-        if ! python3 scripts/benchmark_runner.py --venv-python "$VENV_PYTHON" --skip-leaderboard; then
+        if ! python3 scripts/benchmark_runner.py --venv-python "$VENV_PYTHON" --skip-leaderboard ${DRY_RUN:+--dry-run}; then
             log_warning "Some benchmarks failed, but continuing..."
         fi
     fi

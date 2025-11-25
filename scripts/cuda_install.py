@@ -89,6 +89,19 @@ def install_cuda(cuda_version):
     os.environ['LD_LIBRARY_PATH'] = f"{cuda_path}/lib64:{os.environ.get('LD_LIBRARY_PATH', '')}"
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dry-run', action='store_true', help='Show what would be done without executing')
+    args = parser.parse_args()
+
+    if args.dry_run:
+        log_info("DRY RUN: Would detect GPU and install CUDA")
+        log_info("  Would check NVIDIA drivers")
+        log_info("  Would detect GPU compute capability")
+        log_info("  Would map to appropriate CUDA version")
+        log_info("  Would install CUDA toolkit")
+        return
+
     gpu_available, compute_cap = detect_gpu()
     if not gpu_available: sys.exit(1)
     required_cuda = get_required_cuda_version(compute_cap)
