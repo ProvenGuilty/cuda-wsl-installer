@@ -1,63 +1,61 @@
 #!/usr/bin/env python3
-"""CUDA kernel benchmark using Numba CUDA."""
+"""CUDA kernel benchmark using PyTorch CUDA operations."""
 
 import time
-from numba import cuda
-import numpy as np
+import torch
 
-def run_numba_cuda_kernel():
-    """Run a simple CUDA kernel using Numba."""
+def run_pytorch_cuda_kernel():
+    """Run a simple CUDA operation using PyTorch."""
     
-    @cuda.jit
-    def simple_kernel(arr):
-        """Simple CUDA kernel that squares array elements."""
-        i = cuda.grid(1)
-        if i < arr.size:
-            arr[i] = arr[i] * arr[i]
+    # Check if CUDA device supports Blackwell (compute capability 12.0)
+    if torch.cuda.is_available():
+        device_props = torch.cuda.get_device_properties(0)
+        compute_capability = f"{device_props.major}.{device_props.minor}"
+        print(f"[info] GPU compute capability: {compute_capability}")
+        
+        if compute_capability == "12.0":
+            print("[warning] Blackwell GPU detected - PyTorch CUDA kernels not yet available")
+            raise RuntimeError("Blackwell GPUs not yet supported by current PyTorch version")
     
     # Create test data
     n = 1000000
-    arr = np.random.random(n).astype(np.float32)
+    arr = torch.randn(n, device='cuda', dtype=torch.float32)
     
-    # Copy to device
-    d_arr = cuda.to_device(arr)
-    
-    # Configure kernel
-    threads_per_block = 256
-    blocks_per_grid = (n + threads_per_block - 1) // threads_per_block
-    
-    # Run kernel
+    # Run simple computation (element-wise operations)
     start = time.perf_counter()
-    simple_kernel[blocks_per_grid, threads_per_block](d_arr)
-    cuda.synchronize()  # Wait for completion
+    result = arr * arr  # Element-wise square
+    result = torch.sin(result)  # Additional computation
+    torch.cuda.synchronize()  # Wait for completion
     duration = time.perf_counter() - start
-    
-    # Copy back result
-    result = d_arr.copy_to_host()
     
     return duration
 
-def benchmark_numba_cuda():
-    """Benchmark Numba CUDA kernel."""
-    return run_numba_cuda_kernel()
+def benchmark_pytorch_cuda():
+    """Benchmark PyTorch CUDA operations."""
+    return run_pytorch_cuda_kernel()
 
 def main():
     """Run CUDA kernel benchmarks."""
     import argparse
     
     parser = argparse.ArgumentParser()
+    parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
     parser.add_argument("--result-file", type=str)
     args = parser.parse_args()
     
     results = {}
     
-    try:
-        duration = benchmark_numba_cuda()
-        print(f"[benchmark] cuda_kernel time={duration:.4f}s")
-        results["cuda_kernel"] = duration
-    except Exception as e:
-        print(f"[warning] CUDA kernel benchmark failed: {e}")
+    if args.device == "cpu":
+        print("[info] CUDA samples benchmark skipped on CPU")
         results["cuda_kernel"] = None
+    else:
+        try:
+            duration = benchmark_pytorch_cuda()
+            print(f"[benchmark] cuda_kernel time={duration:.4f}s")
+            results["cuda_kernel"] = duration
+        except Exception as e:
+            print(f"[warning] CUDA kernel benchmark failed: {e}")
+            results["cuda_kernel"] = None
     
     if args.result_file:
         import json

@@ -1,5 +1,17 @@
 [
   {
+    "handle": "@mrshaun13",
+    "benchmark": "cudf_groupby",
+    "score": 0.017926460999660776,
+    "status": "ELITE HACKER!",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "gpu": "NVIDIA GeForce RTX 5070 Ti",
+    "cuda_version": "12.5",
+    "driver_version": "581.80",
+    "os": "Ubuntu 22.04.1 LTS",
+    "device": "cuda"
+  },
+  {
     "handle": "@ShaunRocks",
     "benchmark": "cudf_groupby",
     "score": 0.022,

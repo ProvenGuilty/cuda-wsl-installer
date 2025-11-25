@@ -22,5 +22,17 @@
     "driver_version": "581.57",
     "os": "Ubuntu 24.04.3 LTS",
     "device": "cuda"
+  },
+  {
+    "handle": "@mrshaun13",
+    "benchmark": "tensorflow_cnn",
+    "score": 6.237611978998757,
+    "status": "ELITE HACKER!",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13600K",
+    "gpu": "NVIDIA GeForce RTX 5070 Ti",
+    "cuda_version": "12.5",
+    "driver_version": "581.80",
+    "os": "Ubuntu 22.04.1 LTS",
+    "device": "cpu"
   }
 ]

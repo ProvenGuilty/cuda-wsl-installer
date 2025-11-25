@@ -67,15 +67,17 @@ def run_tensorflow_benchmark(device, venv_python=None):
     # TensorFlow may fail on some GPUs, but try anyway
     return run_benchmark('run_tensorflow_cnn', device, venv_python)
 
+def run_cudf_benchmark(device, venv_python=None):
+    """Run cuDF groupby benchmark."""
+    return run_benchmark('run_cudf_groupby', device, venv_python)
+
 def run_cuda_samples_benchmark(device, venv_python=None):
     """Run CUDA samples benchmark."""
     return run_benchmark('run_cuda_samples', device, venv_python)
 
-def run_all_benchmarks(use_gpu=True, venv_python=None):
+def run_all_benchmarks(device='cuda', venv_python=None):
     """Run all benchmarks."""
     log_info("Running all benchmarks...")
-
-    device = 'cuda' if use_gpu else 'cpu'
 
     results = {}
 
@@ -86,7 +88,7 @@ def run_all_benchmarks(use_gpu=True, venv_python=None):
     results['tensorflow'] = run_tensorflow_benchmark(device, venv_python)
 
     # cuDF (only if GPU requested, will fallback internally)
-    if use_gpu:
+    if device == 'cuda':
         results['cudf'] = run_cudf_benchmark(device, venv_python)
     else:
         results['cudf'] = run_cudf_benchmark('cpu', venv_python)
@@ -120,7 +122,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gpu', action='store_true', default=True)
+    parser.add_argument('--device', choices=('cpu', 'cuda'), default='cuda', help='Device to run benchmarks on')
     parser.add_argument('--venv-python', help='Path to venv python executable')
     parser.add_argument('--skip-leaderboard', action='store_true')
     args = parser.parse_args()
@@ -128,7 +130,7 @@ def main():
     log_info("Starting benchmark runner...")
 
     # Run benchmarks
-    results = run_all_benchmarks(args.gpu, args.venv_python)
+    results = run_all_benchmarks(args.device, args.venv_python)
 
     # Generate leaderboard
     if not args.skip_leaderboard:

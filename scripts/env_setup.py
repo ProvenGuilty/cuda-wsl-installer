@@ -107,10 +107,15 @@ def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--venv-path', default='.cuda-wsl-bench-venv')
-    parser.add_argument('--gpu', action='store_true', default=True)
+    parser.add_argument('--gpu', type=lambda x: x.lower() not in ('false', '0', 'no'), default=True)
+    parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args()
 
     try:
+        if args.dry_run:
+            log_info("DRY RUN: Skipping venv creation and package installation")
+            return
+            
         venv_path = setup_venv(args.venv_path)
         activate_venv(venv_path)
         upgrade_pip()
