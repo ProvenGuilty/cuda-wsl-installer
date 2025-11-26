@@ -79,14 +79,90 @@ def get_required_cuda_version(compute_cap):
     elif major >= 8: return "13.0"
     return "12.0"
 
+def install_cuda_runfile(cuda_version):
+    """Install CUDA using runfile installer (for CUDA 11.0 on Ubuntu 24.04)."""
+    if cuda_version == "11.0":
+        runfile_url = "http://developer.download.nvidia.com/compute/cuda/11.0.2/local_installers/cuda_11.0.2_450.51.05_linux.run"
+        runfile_name = "cuda_11.0.2_450.51.05_linux.run"
+    else:
+        raise ValueError(f"Runfile install not configured for CUDA {cuda_version}")
+
+    log_info(f"Downloading CUDA {cuda_version} runfile installer...")
+    try:
+        run_cmd(f"wget -q {runfile_url}")
+        run_cmd(f"chmod +x {runfile_name}")
+        log_info(f"Installing CUDA {cuda_version} via runfile (this may take several minutes)...")
+        # --silent: non-interactive, --toolkit: install toolkit only (no driver), --override: skip checks
+        run_cmd(f"sudo sh {runfile_name} --silent --toolkit --override")
+        log_success(f"CUDA {cuda_version} installed via runfile")
+        cuda_path = f"/usr/local/cuda-{cuda_version}"
+        if not os.path.exists(cuda_path):
+            cuda_path = "/usr/local/cuda"
+        os.environ['PATH'] = f"{cuda_path}/bin:{os.environ.get('PATH', '')}"
+        os.environ['LD_LIBRARY_PATH'] = f"{cuda_path}/lib64:{os.environ.get('LD_LIBRARY_PATH', '')}"
+        return cuda_path
+    finally:
+        if os.path.exists(runfile_name):
+            os.remove(runfile_name)
+            log_info(f"Cleaned up {runfile_name}")
+
+def install_cuda_apt(cuda_version):
+    """Install CUDA using apt packages (for CUDA 12/13 on modern distros)."""
+    keyring_deb = "cuda-keyring_1.1-1_all.deb"
+    keyring_url = f"https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/{keyring_deb}"
+
+    log_info("Setting up CUDA apt repository...")
+    run_cmd(f"wget -q {keyring_url}")
+    try:
+        run_cmd(f"sudo dpkg -i {keyring_deb}")
+        run_cmd("sudo apt-get update")
+
+        normalized = cuda_version.replace('.', '-')
+        major = cuda_version.split('.')[0]
+        package_candidates = [
+            f"cuda-toolkit-{cuda_version}",
+            f"cuda-toolkit-{normalized}",
+            f"cuda-toolkit-{major}",
+            "cuda-toolkit",
+        ]
+
+        attempted = set()
+        last_error = None
+
+        for package_name in package_candidates:
+            if package_name in attempted:
+                continue
+            attempted.add(package_name)
+            log_info(f"Attempting CUDA install via package '{package_name}'")
+            try:
+                run_cmd(["sudo", "apt-get", "install", "-y", package_name])
+                log_success(f"Installed CUDA toolkit via '{package_name}'")
+                cuda_path = f"/usr/local/cuda-{cuda_version}" if package_name != "cuda-toolkit" else "/usr/local/cuda"
+                if not os.path.exists(cuda_path):
+                    cuda_path = "/usr/local/cuda"
+                os.environ['PATH'] = f"{cuda_path}/bin:{os.environ.get('PATH', '')}"
+                os.environ['LD_LIBRARY_PATH'] = f"{cuda_path}/lib64:{os.environ.get('LD_LIBRARY_PATH', '')}"
+                return cuda_path
+            except subprocess.CalledProcessError as exc:
+                log_warning(f"CUDA package '{package_name}' failed with exit code {exc.returncode}")
+                last_error = exc
+
+        if last_error is not None:
+            raise last_error
+        raise RuntimeError("CUDA installation failed with no specific error captured")
+    finally:
+        if os.path.exists(keyring_deb):
+            os.remove(keyring_deb)
+            log_info(f"Cleaned up {keyring_deb}")
+
 def install_cuda(cuda_version):
-    run_cmd("wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-keyring_1.1-1_all.deb")
-    run_cmd("sudo dpkg -i cuda-keyring_1.1-1_all.deb")
-    run_cmd("sudo apt-get update")
-    run_cmd(f"sudo apt-get install -y cuda-toolkit-{cuda_version}")
-    cuda_path = f"/usr/local/cuda-{cuda_version}"
-    os.environ['PATH'] = f"{cuda_path}/bin:{os.environ.get('PATH', '')}"
-    os.environ['LD_LIBRARY_PATH'] = f"{cuda_path}/lib64:{os.environ.get('LD_LIBRARY_PATH', '')}"
+    """Install CUDA using the appropriate method based on version."""
+    if cuda_version == "11.0":
+        log_info("Using runfile installer for CUDA 11.0 (Ubuntu 24.04 compatibility)")
+        return install_cuda_runfile(cuda_version)
+    else:
+        log_info(f"Using apt packages for CUDA {cuda_version}")
+        return install_cuda_apt(cuda_version)
 
 def main():
     import argparse

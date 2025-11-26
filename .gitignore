@@ -38,6 +38,7 @@ cuda-samples/
 
 # Package files
 *.deb
+*.run
 
 # OS generated files
 .DS_Store

@@ -1,68 +1,83 @@
 #!/usr/bin/env python3
 """CUDA kernel benchmark using Numba CUDA."""
 
+from __future__ import annotations
+
+import json
+import sys
 import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Optional
+
 import numpy as np
 
-# Try to import numba.cuda
 try:
     from numba import cuda
     NUMBA_CUDA_AVAILABLE = True
 except ImportError:
     NUMBA_CUDA_AVAILABLE = False
-    cuda = None
+    cuda = None  # type: ignore
 
-# Check if CUDA is available
-CUDA_AVAILABLE = False
-if NUMBA_CUDA_AVAILABLE:
+
+@dataclass
+class BenchmarkResult:
+    duration: Optional[float]
+    status: str
+    message: str
+
+
+def ensure_cuda_available() -> BenchmarkResult:
+    if not NUMBA_CUDA_AVAILABLE:
+        return BenchmarkResult(
+            duration=None,
+            status="skipped",
+            message="numba.cuda not installed; skipping benchmark",
+        )
+
     try:
-        # Test CUDA availability
         cuda.detect()
-        CUDA_AVAILABLE = True
-    except Exception as e:
-        CUDA_AVAILABLE = False
+        return BenchmarkResult(duration=0.0, status="ready", message="CUDA detected")
+    except Exception as exc:  # pragma: no cover - defensive
+        return BenchmarkResult(
+            duration=None,
+            status="skipped",
+            message=f"CUDA runtime unavailable ({exc}); skipping benchmark",
+        )
 
-def run_numba_cuda_kernel():
-    """Run a simple CUDA kernel using Numba."""
-    if not CUDA_AVAILABLE:
-        raise RuntimeError("CUDA not available")
-    
+
+def run_numba_cuda_kernel() -> BenchmarkResult:
+    availability = ensure_cuda_available()
+    if availability.status != "ready":
+        return availability
+
+    assert cuda is not None  # for type-checkers
+
     @cuda.jit
     def simple_kernel(arr):
-        """Simple CUDA kernel that squares array elements."""
         i = cuda.grid(1)
         if i < arr.size:
             arr[i] = arr[i] * arr[i]
-    
-    # Create test data
-    n = 1000000
-    arr = np.random.random(n).astype(np.float32)
-    
-    # Copy to device
-    d_arr = cuda.to_device(arr)
-    
-    # Configure kernel
+
+    n = 1_000_000
+    host_arr = np.random.random(n).astype(np.float32)
+    device_arr = cuda.to_device(host_arr)
+
     threads_per_block = 256
     blocks_per_grid = (n + threads_per_block - 1) // threads_per_block
-    
-    # Run kernel
-    start = time.perf_counter()
-    simple_kernel[blocks_per_grid, threads_per_block](d_arr)
-    cuda.synchronize()  # Wait for completion
-    duration = time.perf_counter() - start
-    
-    # Copy back result
-    result = d_arr.copy_to_host()
-    
-    return duration
 
-def benchmark_numba_cuda():
-    """Benchmark Numba CUDA kernel."""
-    if not CUDA_AVAILABLE:
-        print("[warning] CUDA not available for Numba CUDA benchmark")
-        return None
-    
-    return run_numba_cuda_kernel()
+    try:
+        start = time.perf_counter()
+        simple_kernel[blocks_per_grid, threads_per_block](device_arr)
+        cuda.synchronize()
+        duration = time.perf_counter() - start
+        return BenchmarkResult(duration=duration, status="completed", message="Benchmark succeeded")
+    except Exception as exc:  # pragma: no cover - defensive
+        return BenchmarkResult(
+            duration=None,
+            status="skipped",
+            message=f"CUDA kernel execution failed ({exc}); skipping benchmark",
+        )
 
 def leaderboard_main(avg):
     """Update leaderboard with CUDA kernel benchmark result."""
@@ -137,27 +152,28 @@ def main():
     
     results = {}
     
-    duration = benchmark_numba_cuda()
-    if duration is not None:
-        print(f"[benchmark] cuda_kernel time={duration:.4f}s")
-        results["cuda_kernel"] = duration
-        
-        # Update leaderboard
-        leaderboard_main(duration)
+    result = run_numba_cuda_kernel()
+
+    if result.duration is not None:
+        print(f"[benchmark] cuda_kernel time={result.duration:.4f}s")
+        results["cuda_kernel"] = {
+            "status": result.status,
+            "seconds": result.duration,
+        }
+        leaderboard_main(result.duration)
     else:
-        print("[warning] CUDA kernel benchmark skipped (CUDA not available)")
-        results["cuda_kernel"] = None
-    
+        print(f"[warning] {result.message}")
+        results["cuda_kernel"] = {
+            "status": result.status,
+            "message": result.message,
+        }
+
     if args.result_file:
-        import json
-        with open(args.result_file, 'w') as f:
-            json.dump(results, f, indent=2)
+        Path(args.result_file).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.result_file).write_text(json.dumps(results, indent=2))
+
+    return 0
+
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print(f"[error] CUDA samples script failed: {e}")
-        import traceback
-        traceback.print_exc()
-        exit(1)
+    sys.exit(main())

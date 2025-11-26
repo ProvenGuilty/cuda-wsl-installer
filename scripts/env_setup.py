@@ -77,6 +77,10 @@ def upgrade_pip(venv_python):
     run_cmd([venv_python, '-m', 'pip', 'install', '--upgrade', 'pip'])
 
 def install_packages(use_gpu=True, venv_python=None):
+    compute_cap = detect_gpu_compute_cap() if use_gpu else None
+    pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu"
+    cuda_version = "0.0"
+
     if use_gpu:
         cuda_version = "12.0"
         try:
@@ -85,20 +89,37 @@ def install_packages(use_gpu=True, venv_python=None):
                 if 'release' in line:
                     cuda_version = line.split('release ')[1].split(',')[0][:3]
                     break
-        except:
-            pass
-        pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124"
-    else:
-        pytorch_package = "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu"
+        except Exception:
+            log_warning("nvcc --version unavailable; falling back to default CUDA 12.0 assumptions")
 
-    compute_cap = detect_gpu_compute_cap() if use_gpu else None
-    
-    if cuda_version.startswith('13') and compute_cap and int(compute_cap.split('.')[0]) >= 8:
-        tensorflow_version = "tensorflow[and-cuda]"
-    elif compute_cap is not None and int(compute_cap.split('.')[0]) <= 7:
-        tensorflow_version = "tensorflow-cpu"
+        pytorch_index = "https://download.pytorch.org/whl/cu124"
+        major_cc = None
+        try:
+            major_cc = int(compute_cap.split('.')[0]) if compute_cap else None
+        except (AttributeError, ValueError):
+            log_warning(f"Unexpected compute capability format: {compute_cap}")
+            major_cc = None
+
+        if major_cc is not None and major_cc <= 7:
+            pytorch_index = "https://download.pytorch.org/whl/cu118"
+            log_info("Detected pre-RTX GPU (compute capability <= 7); pinning PyTorch to cu118 wheels")
+        elif major_cc is not None:
+            log_info(f"Detected compute capability {major_cc}; using cu124 PyTorch wheels")
+        else:
+            log_warning("Unable to determine compute capability; defaulting to cu124 PyTorch wheels")
+
+        pytorch_package = f"torch torchvision torchaudio --index-url {pytorch_index}"
+
+        if major_cc is not None and major_cc >= 8:
+            tensorflow_version = "tensorflow[and-cuda]"
+        else:
+            tensorflow_version = "tensorflow-cpu"
+            if major_cc is None:
+                log_warning("TensorFlow GPU build disabled; compute capability could not be determined")
+            else:
+                log_info("TensorFlow GPU build skipped for legacy GPU (compute capability < 8)")
     else:
-        tensorflow_version = "tensorflow[and-cuda]"
+        tensorflow_version = "tensorflow-cpu"
 
     packages = [pytorch_package, "pandas", "loguru", tensorflow_version]
 
