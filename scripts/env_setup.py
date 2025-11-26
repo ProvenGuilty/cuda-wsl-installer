@@ -31,6 +31,15 @@ def run_cmd(cmd, check=True, shell=False):
         raise subprocess.CalledProcessError(result.returncode, cmd)
     return result
 
+def run_cmd_with_output(cmd, check=True):
+    """Run command without capturing output, allowing progress bars to display."""
+    if isinstance(cmd, str):
+        cmd_list = cmd.split()
+    else:
+        cmd_list = cmd
+    result = subprocess.run(cmd_list, env=os.environ, check=check)
+    return result
+
 def detect_gpu_compute_cap():
     try:
         result = subprocess.run(['nvidia-smi', '--query-gpu=compute_cap', '--format=csv,noheader,nounits'], 
@@ -74,7 +83,7 @@ def activate_venv(venv_path):
         sys.path.insert(0, venv_site_packages)
 
 def upgrade_pip(venv_python):
-    run_cmd([venv_python, '-m', 'pip', 'install', '--upgrade', 'pip'])
+    run_cmd_with_output([venv_python, '-m', 'pip', 'install', '--upgrade', 'pip'])
 
 def install_packages(use_gpu=True, venv_python=None):
     compute_cap = detect_gpu_compute_cap() if use_gpu else None
@@ -147,7 +156,8 @@ def install_packages(use_gpu=True, venv_python=None):
 
     for package in packages:
         try:
-            run_cmd([venv_python, '-m', 'pip', 'install'] + package.split())
+            log_info(f"Installing {package.split()[0]}...")
+            run_cmd_with_output([venv_python, '-m', 'pip', 'install'] + package.split())
         except subprocess.CalledProcessError:
             log_warning(f"Failed to install: {package}")
 
