@@ -2,20 +2,30 @@
 """CUDA kernel benchmark using Numba CUDA."""
 
 import time
-from numba import cuda
 import numpy as np
+
+# Try to import numba.cuda
+try:
+    from numba import cuda
+    NUMBA_CUDA_AVAILABLE = True
+except ImportError:
+    NUMBA_CUDA_AVAILABLE = False
+    cuda = None
 
 # Check if CUDA is available
 CUDA_AVAILABLE = False
-try:
-    # Test CUDA availability
-    cuda.detect()
-    CUDA_AVAILABLE = True
-except:
-    CUDA_AVAILABLE = False
+if NUMBA_CUDA_AVAILABLE:
+    try:
+        # Test CUDA availability
+        cuda.detect()
+        CUDA_AVAILABLE = True
+    except Exception as e:
+        CUDA_AVAILABLE = False
 
 def run_numba_cuda_kernel():
     """Run a simple CUDA kernel using Numba."""
+    if not CUDA_AVAILABLE:
+        raise RuntimeError("CUDA not available")
     
     @cuda.jit
     def simple_kernel(arr):
@@ -144,4 +154,10 @@ def main():
             json.dump(results, f, indent=2)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"[error] CUDA samples script failed: {e}")
+        import traceback
+        traceback.print_exc()
+        exit(1)
