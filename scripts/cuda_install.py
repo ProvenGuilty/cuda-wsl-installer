@@ -87,9 +87,9 @@ def install_cuda_runfile(cuda_version):
     else:
         raise ValueError(f"Runfile install not configured for CUDA {cuda_version}")
 
-    log_info(f"Downloading CUDA {cuda_version} runfile installer...")
+    log_info(f"Downloading CUDA {cuda_version} runfile installer (2.9GB, may take several minutes)...")
     try:
-        run_cmd(f"wget -q {runfile_url}")
+        run_cmd(f"wget --progress=bar:force {runfile_url}")
         run_cmd(f"chmod +x {runfile_name}")
         log_info(f"Installing CUDA {cuda_version} via runfile (this may take several minutes)...")
         # --silent: non-interactive, --toolkit: install toolkit only (no driver), --override: skip checks
