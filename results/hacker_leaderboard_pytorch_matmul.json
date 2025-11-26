@@ -1,17 +1,5 @@
 [
   {
-    "handle": "@ShaunRocks",
-    "benchmark": "pytorch_matmul",
-    "score": 0.03,
-    "status": "ELITE HACKER!",
-    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
-    "gpu": "NVIDIA GeForce RTX 5070",
-    "cuda_version": "13.0",
-    "driver_version": "581.80",
-    "os": "Ubuntu 22.04.3 LTS",
-    "device": "cuda"
-  },
-  {
     "handle": "@Christopher Ryan",
     "benchmark": "pytorch_matmul",
     "score": 0.002075028333517063,
@@ -21,6 +9,18 @@
     "cuda_version": "12.5",
     "driver_version": "581.57",
     "os": "Ubuntu 24.04.3 LTS",
+    "device": "cuda"
+  },
+  {
+    "handle": "@ShaunRocks",
+    "benchmark": "pytorch_matmul",
+    "score": 0.03,
+    "status": "ELITE HACKER!",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "gpu": "NVIDIA GeForce RTX 5070",
+    "cuda_version": "13.0",
+    "driver_version": "581.80",
+    "os": "Ubuntu 22.04.3 LTS",
     "device": "cuda"
   }
 ]
