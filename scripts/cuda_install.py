@@ -89,7 +89,8 @@ def install_cuda_runfile(cuda_version):
 
     log_info(f"Downloading CUDA {cuda_version} runfile installer (2.9GB, may take several minutes)...")
     try:
-        run_cmd(f"wget --progress=bar:force {runfile_url}")
+        # Run wget without capturing output so progress bar displays
+        subprocess.run(f"wget --progress=bar:force {runfile_url}", shell=True, check=True)
         run_cmd(f"chmod +x {runfile_name}")
         log_info(f"Installing CUDA {cuda_version} via runfile (this may take several minutes)...")
         # --silent: non-interactive, --toolkit: install toolkit only (no driver), --override: skip checks
